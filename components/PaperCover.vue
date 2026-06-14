@@ -295,7 +295,12 @@ const BlochSphere = defineComponent({
 }
 
 /* ── Two-column deco mode ──
-   Left: title + authors + affiliations (left-aligned).
+   Left: title (+ subtitle + authors) as a vertically centered block.
+   Affiliations are pulled out of that block and pinned to the bottom-left
+   corner — otherwise they lift the whole centered stack and the title sits
+   well above the middle. A modest top padding nudges the title down to the
+   optical center (geometric center would feel slightly low once the
+   authors hang below the title).
    Right: built-in Bloch sphere or custom `decoration` slot, rendered as a
    faint watermark (low opacity) like the Quantum template. */
 .paper-cover.paper-cover-deco {
@@ -305,12 +310,14 @@ const BlochSphere = defineComponent({
   justify-content: center;
   width: 100%;
   height: 100%;
-  padding: 0;
+  padding: 1.5rem 0 0;
   text-align: left;
 }
 
+/* `flex: 0 1 auto` (not `1 1 auto`) so the block sizes to its content and
+   the parent's justify-content: center can actually center it. */
 .paper-cover.paper-cover-deco .paper-cover-text {
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   align-items: flex-start;
   min-width: 0;
   max-width: 760px;
@@ -326,10 +333,17 @@ const BlochSphere = defineComponent({
   max-width: 620px;
 }
 
+/* Affiliations pinned to the bottom-left corner. `position: absolute`
+   resolves against .paper-cover-deco (position: relative); taken out of
+   flow so the centered title block ignores them and the title stays near
+   the optical middle. */
 .paper-cover.paper-cover-deco .cover-affiliations {
+  position: absolute;
+  bottom: 0;
+  left: 0;
   align-items: flex-start;
   max-width: 560px;
-  margin-top: 0.9rem;
+  margin-top: 0;
 }
 
 .paper-cover-deco-side {
