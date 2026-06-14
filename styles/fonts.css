@@ -1,0 +1,78 @@
+/* styles/fonts.css */
+
+@font-face {
+  font-family: 'Geist';
+  src: url('./fonts/Geist.woff2') format('woff2');
+  font-weight: 100 900; 
+  font-style: normal;   
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist';
+  src: url('./fonts/Geist-Italic.woff2') format('woff2');
+  font-weight: 100 900; 
+  font-style: italic;   
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('./fonts/GeistMono.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ============================================
+   字重层级系统
+   Geist 字体支持 100-900 可变字重
+   ============================================ */
+
+/* 正文基础字重 */
+.slidev-layout,
+.slidev-layout p,
+.slidev-layout li,
+.slidev-layout td,
+.slidev-layout th {
+  font-weight: 400;
+}
+
+/* 标题层级字重 */
+.slidev-layout h1 {
+  font-weight: 620 !important;
+}
+
+.slidev-layout h2 {
+  font-weight: 580 !important;
+}
+
+.slidev-layout h3 {
+  font-weight: 540 !important;
+}
+
+.slidev-layout h4 {
+  font-weight: 500 !important;
+}
+
+.slidev-layout h5,
+.slidev-layout h6 {
+  font-weight: 460 !important;
+}
+
+/* 强调文本 */
+.slidev-layout strong,
+.slidev-layout b {
+  font-weight: 520;
+}
+
+/* 代码区域保持较轻字重，提升可读性 */
+.slidev-layout code,
+.slidev-layout pre {
+  font-weight: 350;
+}
+
+/* 引用块 */
+.slidev-layout blockquote {
+  font-weight: 360;
+}

@@ -1,0 +1,46 @@
+{
+  "name": "slidev-theme-ket",
+  "version": "0.1.0",
+  "description": "Ket — 个人 Slidev 主题（BraBlock 定理区块 / squircle 圆角 / 投影仪模式）",
+  "author": "iluluyu",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "slidev-theme",
+    "slidev"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "slidev build example.md",
+    "dev": "slidev example.md --open",
+    "export": "slidev export example.md",
+    "screenshot": "slidev export example.md --format png"
+  },
+  "dependencies": {
+    "@slidev/types": "^52.12.0"
+  },
+  "devDependencies": {
+    "@slidev/cli": "^52.12.0"
+  },
+  "files": [
+    "components",
+    "layouts",
+    "styles",
+    "setup",
+    "public",
+    "global-bottom.vue",
+    "README.md"
+  ],
+  "slidev": {
+    "colorSchema": "both",
+    "defaults": {
+      "fonts": {
+        "sans": "Geist",
+        "mono": "Geist Mono",
+        "provider": "none"
+      }
+    }
+  }
+}

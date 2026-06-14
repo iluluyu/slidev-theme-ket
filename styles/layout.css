@@ -1,0 +1,229 @@
+:root {
+  --slidev-theme-primary-light: #4ec3d0 !important;
+  --slidev-theme-primary: #2d9fb3 !important;
+  --slidev-theme-primary-dark: #1a6e88 !important;
+  --slidev-slide-container-background: white !important;
+  --slidev-controls-foreground: #333 !important;
+  --font-size-title: 2rem;
+  --font-size-subtitle: 1.5rem;
+  --font-size-body: 2rem;
+}
+
+.slidev-layout {
+  @apply px-3 py-2;
+
+  h1 { @apply mb-1; }
+  h2 { @apply mb-1 mt-1; }
+  h3 { @apply mb-1 mt-1; }
+}
+
+.slidev-layout.cover {
+  @apply h-full flex items-center justify-center text-center;
+
+  .cover-content {
+    @apply flex flex-col items-center gap-1;
+  }
+
+  h1 {
+    @apply text-6xl leading-tight mb-0;
+  }
+
+  h1 + p {
+    @apply opacity-50 mb-1 text-lg;
+  }
+
+  /* Gradient styles are now handled in pdf-gradient.css
+     This ensures better browser support and PDF compatibility */
+
+  .cover-meta {
+    @apply mt-3 flex flex-col items-center gap-1 opacity-80;
+
+    p {
+      @apply m-0 leading-snug;
+    }
+  }
+
+  .cover-presenter {
+    @apply text-lg font-medium;
+  }
+
+  .cover-organization {
+    @apply text-sm opacity-70;
+  }
+
+  .cover-date {
+    @apply text-sm opacity-50;
+  }
+
+  /* Academic author / affiliation layout */
+  .cover-authors {
+    @apply mt-5 flex flex-wrap justify-center gap-x-3 gap-y-1;
+    font-size: 1.15rem;
+    letter-spacing: 0.02em;
+  }
+
+  .cover-affiliations {
+    @apply mt-3 flex flex-col items-center gap-0.5;
+    font-size: 0.8rem;
+    opacity: 0.55;
+    line-height: 1.8;
+  }
+
+  .cover-affiliations p {
+    @apply m-0;
+  }
+
+  .affil-mark {
+    font-size: 0.72em;
+    color: var(--slidev-theme-primary);
+  }
+}
+
+.slidev-layout.intro {
+  @apply h-full grid;
+
+  h1 {
+    @apply text-6xl leading-20;
+  }
+
+  h1 + p {
+    @apply -mt-2 opacity-50 mb-4;
+  }
+
+  p + h2,
+  ul + h2,
+  table + h2 {
+    @apply mt-10;
+  }
+}
+
+/* Intro layout gradient variants */
+.intro-gradient h1,
+.intro-gradient-glass h1,
+.intro-gradient-shimmer h1 {
+  /* Gradient styles handled in pdf-gradient.css */
+}
+
+/* Table styling optimized for projector visibility (RGB 16-235) */
+.slidev-layout table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1.5rem 0;
+}
+
+.slidev-layout th {
+  border-bottom: 2px solid rgba(0, 0, 0, 0.25);
+  font-weight: 600;
+  text-align: left;
+  padding: 0.6rem 0.8rem;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+.slidev-layout td {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+  padding: 0.6rem 0.8rem;
+}
+
+.slidev-layout tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.10); /* Safe contrast zebra striping: maps to ~230 (visible vs 235) */
+}
+
+/* Dark mode table overrides */
+.dark .slidev-layout th {
+  border-bottom: 2px solid rgba(255, 255, 255, 0.30);
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.dark .slidev-layout td {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.dark .slidev-layout tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.08); /* Safe contrast zebra striping in dark mode */
+}
+
+/* Keycaps (<kbd>) styling for projector visibility */
+.slidev-layout kbd {
+  border: 1px solid rgba(0, 0, 0, 0.22) !important;
+  background-color: rgba(0, 0, 0, 0.06) !important;
+  border-radius: 4px;
+  padding: 0.1rem 0.3rem !important;
+  font-size: 0.85em;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.15);
+}
+
+.dark .slidev-layout kbd {
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  background-color: rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,0.1);
+}
+
+/* Divider line (<hr>) styling */
+.slidev-layout hr {
+  border: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.18);
+  margin: 1.5rem 0;
+}
+
+.dark .slidev-layout hr {
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+/* List styling for a more premium and harmonious layout */
+.slidev-layout ul {
+  list-style-type: disc !important; /* Revert to native bullets to restore default bullet-to-text spacing */
+  padding-left: 1.3rem !important; /* Slightly tighter than browser default but roomy enough to prevent wrapping */
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.slidev-layout ul li {
+  margin-bottom: 0.2rem; /* Compact vertical spacing */
+  line-height: 1.45; /* Compact line-height */
+}
+
+/* Beautiful color-matched markers and custom sizing */
+.slidev-layout ul li::marker {
+  color: var(--slidev-theme-primary, #2d9fb3) !important;
+  font-size: 1.15em !important; /* Custom large bullet size */
+}
+
+.slidev-layout ul ul {
+  list-style-type: circle !important;
+  margin-top: 0.15rem;
+  margin-bottom: 0.15rem;
+  padding-left: 1.1rem !important;
+}
+
+.slidev-layout ul ul li::marker {
+  color: var(--slidev-theme-primary-light, #4ec3d0) !important;
+  font-size: 1.05em !important;
+}
+
+.slidev-layout ul ul ul {
+  list-style-type: square !important;
+  padding-left: 1.1rem !important;
+}
+
+.slidev-layout ul ul ul li::marker {
+  color: var(--slidev-theme-primary-dark, #1a6e88) !important;
+  font-size: 0.9em !important;
+}
+
+/* Ordered lists styling */
+.slidev-layout ol {
+  list-style-type: decimal !important;
+  padding-left: 1.3rem !important;
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.slidev-layout ol li {
+  margin-bottom: 0.2rem;
+  line-height: 1.45;
+}
+
+.slidev-layout ol li::marker {
+  color: var(--slidev-theme-primary, #2d9fb3) !important;
+  font-weight: 600;
+}

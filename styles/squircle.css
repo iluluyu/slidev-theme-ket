@@ -1,0 +1,41 @@
+/* 统一圆角 - Slidev Theme Ket */
+
+:root {
+  --ket-radius-sm: 5px;
+  --ket-radius-md: 12px;
+  --ket-inline-code-bg: rgba(0, 0, 0, 0.04); /* Light background for maximum text contrast */
+  --ket-inline-code-border: rgba(0, 0, 0, 0.08); /* Subtle border for outline visibility on projectors */
+  --ket-bra-bg-default: rgba(45, 159, 179, 0.07); /* Light theme-tinted background (looks clean, doesn't conflict with text) */
+  --ket-border-color-default: rgba(45, 159, 179, 0.20); /* Light theme-tinted border for definition boundaries */
+}
+
+.dark {
+  --ket-inline-code-bg: rgba(255, 255, 255, 0.08);
+  --ket-inline-code-border: rgba(255, 255, 255, 0.15);
+  --ket-bra-bg-default: rgba(255, 255, 255, 0.06);
+  --ket-border-color-default: rgba(255, 255, 255, 0.18);
+}
+
+/* 代码块 - 只改圆角，并添加轻微边框防止与底色混合 */
+.slidev-layout pre.shiki {
+  border-radius: var(--ket-radius-md) !important;
+  border: 1px solid rgba(0, 0, 0, 0.10) !important;
+}
+
+.dark .slidev-layout pre.shiki {
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+}
+
+/* 图片 */
+.slidev-layout img[border="rounded"] {
+  border-radius: var(--ket-radius-md) !important;
+}
+
+/* 行内代码 */
+.slidev-layout :not(pre) > code:not([class*="language-"]) {
+  background-color: var(--ket-inline-code-bg) !important;
+  border: 1px solid var(--ket-inline-code-border, rgba(0, 0, 0, 0.08)) !important;
+  border-radius: var(--ket-radius-sm) !important;
+  padding: 0.1em 0.25em !important;
+  font-size: 0.9em;
+}

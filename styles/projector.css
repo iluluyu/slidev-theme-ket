@@ -1,0 +1,132 @@
+/* Projector Safe Mode (RGB 16-235 Dynamic Range Compression & Enhanced Contrast) */
+
+:root.projector-mode {
+  /* Compression of background: slightly grey instead of pure white to prevent eye strain and ensure white elements contrast nicely */
+  --slidev-slide-container-background: #f6f7f9 !important;
+
+  /* Increased contrast variables for overlay blocks and components */
+  --ket-inline-code-bg: rgba(0, 0, 0, 0.05) !important;
+  --ket-inline-code-border: rgba(0, 0, 0, 0.12) !important;
+  --ket-bra-bg-default: rgba(45, 159, 179, 0.09) !important;
+  --ket-border-color-default: rgba(45, 159, 179, 0.28) !important;
+}
+
+:root.projector-mode.dark {
+  /* Compression of background: slightly greyish black instead of pure black to prevent details from falling below 16 */
+  --slidev-slide-container-background: #18181a !important;
+
+  /* Increased contrast variables for dark mode */
+  --ket-inline-code-bg: rgba(255, 255, 255, 0.12) !important;
+  --ket-inline-code-border: rgba(255, 255, 255, 0.22) !important;
+  --ket-bra-bg-default: rgba(255, 255, 255, 0.10) !important;
+  --ket-border-color-default: rgba(255, 255, 255, 0.26) !important;
+}
+
+/* Enhancements under projector-mode */
+.projector-mode .slidev-layout {
+  /* Slightly bold font weights to prevent thin letters from fading/blurring on projectors */
+  font-weight: 450;
+}
+
+/* Make headers more prominent on projector */
+.projector-mode .slidev-layout h1,
+.projector-mode .slidev-layout h2,
+.projector-mode .slidev-layout h3 {
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.projector-mode.dark .slidev-layout h1,
+.projector-mode.dark .slidev-layout h2,
+.projector-mode.dark .slidev-layout h3 {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Stronger border for pre.shiki */
+.projector-mode .slidev-layout pre.shiki {
+  border: 1.5px solid rgba(0, 0, 0, 0.22) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08) !important;
+}
+
+.projector-mode.dark .slidev-layout pre.shiki {
+  border: 1.5px solid rgba(255, 255, 255, 0.22) !important;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Bold keycaps for screen projection visibility */
+.projector-mode .slidev-layout kbd {
+  border: 1.5px solid rgba(0, 0, 0, 0.35) !important;
+  background-color: rgba(0, 0, 0, 0.10) !important;
+  font-weight: 600;
+}
+
+.projector-mode.dark .slidev-layout kbd {
+  border: 1.5px solid rgba(255, 255, 255, 0.38) !important;
+  background-color: rgba(255, 255, 255, 0.18) !important;
+  font-weight: 600;
+}
+
+/* Tables in projector mode */
+.projector-mode .slidev-layout table {
+  margin: 1.5rem 0;
+}
+
+.projector-mode .slidev-layout th {
+  border-bottom: 2.5px solid rgba(0, 0, 0, 0.40) !important;
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+.projector-mode .slidev-layout td {
+  border-bottom: 1.5px solid rgba(0, 0, 0, 0.22) !important;
+}
+
+.projector-mode .slidev-layout tr:nth-child(even) {
+  background-color: rgba(0, 0, 0, 0.07) !important;
+}
+
+.projector-mode.dark .slidev-layout th {
+  border-bottom: 2.5px solid rgba(255, 255, 255, 0.45) !important;
+  background-color: rgba(255, 255, 255, 0.12) !important;
+}
+
+.projector-mode.dark .slidev-layout td {
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+.projector-mode.dark .slidev-layout tr:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.09) !important;
+}
+
+/* Dividers in projector mode */
+.projector-mode .slidev-layout hr {
+  border-top: 1.5px solid rgba(0, 0, 0, 0.28) !important;
+}
+
+.projector-mode.dark .slidev-layout hr {
+  border-top: 1.5px solid rgba(255, 255, 255, 0.28) !important;
+}
+
+/* Opacity elements enhancement: low opacity content gets lost on projectors, so boost their opacity */
+.projector-mode .slidev-layout .opacity-50 {
+  opacity: 0.68 !important;
+}
+
+.projector-mode .slidev-layout .opacity-70 {
+  opacity: 0.82 !important;
+}
+
+.projector-mode .slidev-layout .opacity-80 {
+  opacity: 0.90 !important;
+}
+
+.projector-mode .slidev-layout .cover-date {
+  opacity: 0.68 !important;
+}
+
+.projector-mode .slidev-layout .cover-organization {
+  opacity: 0.85 !important;
+}
+
+.projector-mode .slidev-layout .cover-meta {
+  opacity: 0.92 !important;
+}
