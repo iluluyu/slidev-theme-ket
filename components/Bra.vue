@@ -27,7 +27,7 @@ const props = withDefaults(defineProps<Props>(), {
   name: '',
   number: undefined,
   italic: false,
-  tone: 'default',
+  tone: '',
   color: '',
   bgColor: '',
   titleColor: '',
@@ -65,11 +65,27 @@ const showHeader = computed(() => {
   return displayTitle.value || props.name || props.number !== undefined
 })
 
-const effectiveCompact = computed(() => props.compact ?? props.inline ?? true)
-const effectiveBorder = computed(() => props.border ?? true)
+const effectiveCompact = computed(() => props.compact ?? props.inline ?? false)
+// Default is the quantum background-only style; `border` opts into the outlined variant.
+const effectiveBorder = computed(() => props.border ?? false)
 
 const toneClass = computed(() => {
-  const tone = props.tone.toLowerCase()
+  const typeTone: Record<string, Tone> = {
+    theorem: 'default',
+    proposition: 'default',
+    claim: 'default',
+    definition: 'primary',
+    example: 'primary',
+    lemma: 'success',
+    protocol: 'success',
+    remark: 'warning',
+    note: 'warning',
+    assumption: 'warning',
+    corollary: 'danger',
+    question: 'danger',
+    proof: 'muted'
+  }
+  const tone = (props.tone || typeTone[props.type.toLowerCase()] || 'default').toLowerCase()
   const knownTones = ['default', 'primary', 'danger', 'warning', 'success', 'muted']
   return knownTones.includes(tone) ? `bra-tone-${tone}` : 'bra-tone-default'
 })
@@ -109,66 +125,89 @@ const blockStyle = computed(() => ({
 </template>
 
 <style scoped>
+/* ═══════════════════════════════════════════════
+   Bra — academic theorem / definition block.
+
+   Default style matches the Quantum template: filled
+   background tint, no side border, a hairline ring
+   shadow for depth. Set `border` to switch to the
+   outlined variant.
+═══════════════════════════════════════════════ */
 .bra-block {
   background-color: var(--bra-bg-color);
-  color: var(--bra-color, inherit);
+  color: var(--bra-color, var(--ket-t1, inherit));
   border-radius: var(--ket-radius-md, 12px);
-  padding: 6px 12px;
-  margin: 6px 0;
+  /* Generous but layout-friendly spacing: ~11px external margin gives stacked
+     blocks clear breathing room (margins collapse in block layout, so the
+     inter-block gap equals this single value), while 16/20 padding keeps the
+     interior airy without bloating short blocks. */
+  padding: 16px 20px;
+  margin: 0.7rem 0;
+  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.06);
 }
 
+.dark .bra-block {
+  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--bra-border-color) 24%, transparent);
+}
+
+/* ── Semantic tones (quantum 6-color system) ── */
 .bra-tone-default {
-  --bra-bg-color: var(--ket-bra-bg-default, rgba(45, 159, 179, 0.07));
-  --bra-title-color: var(--slidev-theme-primary, #2d9fb3);
-  --bra-border-color: var(--ket-border-color-default, rgba(45, 159, 179, 0.20));
+  --bra-bg-color: var(--ket-default-bg, #EDEAFF);
+  --bra-title-color: var(--ket-default-lbl, #6D28D9);
+  --bra-border-color: var(--ket-default-lbl, #6D28D9);
 }
 
 .bra-tone-primary {
-  --bra-bg-color: rgba(45, 159, 179, 0.08);
-  --bra-title-color: var(--slidev-theme-primary, #2d9fb3);
-  --bra-border-color: rgba(45, 159, 179, 0.36);
+  --bra-bg-color: var(--ket-primary-bg, #DBEAFE);
+  --bra-title-color: var(--ket-primary-lbl, #1D4ED8);
+  --bra-border-color: var(--ket-primary-lbl, #1D4ED8);
 }
 
 .bra-tone-danger {
-  --bra-bg-color: rgba(231, 76, 60, 0.08);
-  --bra-title-color: #e74c3c;
-  --bra-border-color: rgba(231, 76, 60, 0.42);
+  --bra-bg-color: var(--ket-danger-bg, #FFE4E6);
+  --bra-title-color: var(--ket-danger-lbl, #BE123C);
+  --bra-border-color: var(--ket-danger-lbl, #BE123C);
 }
 
 .bra-tone-warning {
-  --bra-bg-color: rgba(217, 119, 6, 0.10);
-  --bra-title-color: #d97706;
-  --bra-border-color: rgba(217, 119, 6, 0.42);
+  --bra-bg-color: var(--ket-warning-bg, #FEF3C7);
+  --bra-title-color: var(--ket-warning-lbl, #B45309);
+  --bra-border-color: var(--ket-warning-lbl, #B45309);
 }
 
 .bra-tone-success {
-  --bra-bg-color: rgba(22, 163, 74, 0.08);
-  --bra-title-color: #16a34a;
-  --bra-border-color: rgba(22, 163, 74, 0.40);
+  --bra-bg-color: var(--ket-success-bg, #D1FAE5);
+  --bra-title-color: var(--ket-success-lbl, #047857);
+  --bra-border-color: var(--ket-success-lbl, #047857);
 }
 
 .bra-tone-muted {
-  --bra-bg-color: rgba(0, 0, 0, 0.04);
-  --bra-title-color: rgba(0, 0, 0, 0.58);
-  --bra-border-color: rgba(0, 0, 0, 0.16);
+  --bra-bg-color: var(--ket-muted-bg, #F1F2F7);
+  --bra-title-color: var(--ket-muted-lbl, #64748B);
+  --bra-border-color: var(--ket-muted-lbl, #64748B);
 }
 
-.dark .bra-tone-muted {
-  --bra-bg-color: rgba(255, 255, 255, 0.06);
-  --bra-title-color: rgba(255, 255, 255, 0.68);
-  --bra-border-color: rgba(255, 255, 255, 0.18);
-}
-
+/* Outlined variant — transparent fill, colored ring. */
 .bra-block.bra-border {
   background-color: transparent;
   border: 1.5px solid var(--bra-border-color);
+  box-shadow: none;
 }
 
 .bra-header {
   display: block;
-  font-weight: 600;
-  font-size: 1.05em;
-  margin-bottom: 2px;
+  font-weight: 700;
+  font-size: 0.94rem;
+  line-height: 1.3;
+  margin-bottom: 10px;
+}
+
+.bra-compact,
+.bra-inline {
+  /* Keep the opt-in compact variant genuinely tight — override the roomy
+     defaults above so inline theorem notes stay space-efficient. */
+  padding: 8px 14px;
+  margin: 0.2rem 0;
 }
 
 .bra-compact .bra-header,
@@ -205,13 +244,15 @@ const blockStyle = computed(() => ({
   color: var(--bra-title-color);
   opacity: 0.8;
   font-weight: 400;
+  font-style: italic;
   margin-left: 4px;
 }
 
 .bra-content {
   font-weight: 400;
   color: inherit;
-  line-height: 1.5;
+  font-size: 0.92rem;
+  line-height: 1.72;
 }
 
 .bra-block.bra-italic .bra-content {
@@ -219,10 +260,10 @@ const blockStyle = computed(() => ({
 }
 
 .bra-content :deep(p) {
-  margin: 2px 0;
+  margin: 0.3rem 0;
 }
 
 .bra-content :deep(.katex-display) {
-  margin: 4px 0;
+  margin: 6px 0;
 }
 </style>

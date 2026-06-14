@@ -1,29 +1,26 @@
 /* 统一圆角 - Slidev Theme Ket */
 
 :root {
-  --ket-radius-sm: 5px;
+  --ket-radius-sm: 8px;
   --ket-radius-md: 12px;
   --ket-inline-code-bg: rgba(0, 0, 0, 0.04); /* Light background for maximum text contrast */
-  --ket-inline-code-border: rgba(0, 0, 0, 0.08); /* Subtle border for outline visibility on projectors */
-  --ket-bra-bg-default: rgba(124, 58, 237, 0.06); /* Violet-tinted background (theme primary) */
-  --ket-border-color-default: rgba(124, 58, 237, 0.22); /* Violet-tinted border for definition boundaries */
+  --ket-inline-code-border: rgba(0, 0, 0, 0.08); /* Subtle border for outline definition */
 }
 
 .dark {
   --ket-inline-code-bg: rgba(255, 255, 255, 0.08);
   --ket-inline-code-border: rgba(255, 255, 255, 0.15);
-  --ket-bra-bg-default: rgba(255, 255, 255, 0.06);
-  --ket-border-color-default: rgba(255, 255, 255, 0.18);
 }
 
-/* 代码块 - 只改圆角，并添加轻微边框防止与底色混合 */
+/* 代码块 - 与 Bra / 表格 / step 块保持同一圆角尺度 */
 .slidev-layout pre.shiki {
+  border: 0 !important;
   border-radius: var(--ket-radius-md) !important;
-  border: 1px solid rgba(0, 0, 0, 0.10) !important;
+  box-shadow: 0 0 0 1.5px var(--ket-border, rgba(0, 0, 0, 0.10)) !important;
 }
 
 .dark .slidev-layout pre.shiki {
-  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: 0 0 0 1.5px var(--ket-border, rgba(255, 255, 255, 0.12)) !important;
 }
 
 /* 图片 */

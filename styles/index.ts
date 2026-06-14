@@ -3,6 +3,5 @@ import '@slidev/client/styles/layouts-base.css'
 import './layout.css'
 import './fonts.css'
 import './squircle.css'
-import './projector.css'
 
 

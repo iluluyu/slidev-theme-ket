@@ -1,180 +1,144 @@
 ---
 theme: .
-title: slidev-theme-ket
+layout: cover
+title: Quantum Entanglement and Information Processing
 author: iluluyu
 organization: Fudan University
 date: 2026-06-14
 gradient: true
+footerTitle: Quantum Entanglement and Information Processing
 info: |
   ## Ket 主题特性展示
-  cover · intro · Bra · PaperCover · projector · gradient · glass · KaTeX
+  Quantum-style cover · section · Bra theorem/proof · table · code · footer progress
 ---
 
 # slidev-theme-ket
 
-学术演示主题 · 特性展示
+Quantum-style academic theme · Standard cover
 
 ---
-layout: intro
+layout: cover-deco
+gradient: true
+tag: Quantum Information · Research Seminar
 ---
 
-# 布局与组件一览
+# Quantum Entanglement<br>and Information Processing
 
-cover · intro · default
+A framework for multipartite entanglement measures and their role in quantum communication protocols.
 
-Bra · PaperCover · projector · gradient · glass
-
----
-
-# 标题层级
-
-## 二级标题 H2
-
-### 三级标题 H3
-
-#### 四级标题 H4
-
-##### 五级标题 H5
-
-###### 六级标题 H6
-
-正文：**加粗**、*斜体*、`行内代码`、~~删除线~~。
+> Cover variants in this example: `cover`, `cover-deco`, `PaperCover`, and `PaperCover deco`.
 
 ---
 
-# 列表
+# Overview · *Outline*
 
-- 无序第一项
-- 无序第二项
-  - 嵌套子项
-    - 更深一层
-- 无序第三项
+<div class="steps">
+  <div class="step"><div class="step-n">1</div><div class="step-body"><strong>Mathematical framework</strong> — quantum states, density matrices, and von Neumann entropy.</div></div>
+  <div class="step"><div class="step-n">2</div><div class="step-body"><strong>Main results</strong> — subadditivity, strong subadditivity, and Schmidt decomposition.</div></div>
+  <div class="step"><div class="step-n">3</div><div class="step-body"><strong>Applications</strong> — teleportation, entanglement-assisted communication, and protocol costs.</div></div>
+  <div class="step"><div class="step-n">4</div><div class="step-body"><strong>Design system</strong> — theorem boxes, tables, code, and page footer.</div></div>
+</div>
 
-1. 有序第一项
-2. 有序第二项
-3. 有序第三项
+---
+layout: section
+sectionNumber: §1
+tags:
+  - Density matrices
+  - Entropy
+  - No-cloning
+---
 
-> 列表标记自动着色为主题主色，投影仪模式下保持高对比。
+# Mathematical Framework
+
+Quantum states, density matrices, and the von Neumann entropy as the central quantity.
 
 ---
 
-# 表格
-
-| 方法 | 采样复杂度 | 备注 |
-| --- | --- | --- |
-| 层析法 | $O(d^4)$ | 经典基线 |
-| 经典阴影 | $O(d^2)$ | 随机测量 |
-| 纠缠增强 | $O(d)$ | 指数加速 |
-
-> 表格在投影仪模式下会自动增强边框与斑马纹对比度。
-
----
-
-# 代码块
-
-```python
-import jax
-import jax.numpy as jnp
-
-@jax.jit
-def expectation(rho: jnp.ndarray, obs: jnp.ndarray) -> float:
-    """密度矩阵 rho 对可观测量 obs 的期望值。"""
-    return float(jnp.real(jnp.trace(obs @ rho)))
-```
-
-行内代码：`pnpm dev` 启动开发服务器。快捷键 <kbd>Space</kbd> 翻页，<kbd>Esc</kbd> 进入总览。
-
----
-
-# 引用与分隔线
-
-> 这是一个引用块（blockquote），适合放置重要引述或强调内容。投影仪模式下字重会自动增强。
-
-上方内容
-
----
-
-`<hr>` 分隔线，用于视觉切分。
-
----
-
-# 数学公式
-
-行内公式：测量后状态 $\rho' = K_i \rho K_i^\dagger \,/\, \operatorname{tr}(K_i \rho K_i^\dagger)$。
-
-完备性关系：
-
-$$
-\sum_{i} K_{i}^{\dagger} K_{i} = \mathbb{I}.
-$$
-
-采样复杂度上界：
-
-$$
-N = O\!\left(\frac{d^2 \log d}{\varepsilon^2}\right), \quad d = 2^n.
-$$
-
----
-
-# Bra · 预设类型
+# §1 · Mathematical Framework · *Theorem Blocks*
 
 <Bra type="theorem" name="No-Cloning" :number="1">
 
-不存在通用克隆酉 $U$ 使 $U(|\psi\rangle|0\rangle) = |\psi\rangle|\psi\rangle$ 对所有非正交态 $|\psi\rangle$ 同时成立。
+There is no unitary $U$ such that $U(|\psi\rangle|0\rangle)=|\psi\rangle|\psi\rangle$ holds for all non-orthogonal states $|\psi\rangle$. Quantum information cannot be duplicated.
 
 </Bra>
 
-<Bra type="definition" name="Sample Amplification" :number="1">
+<Bra type="definition" name="Von Neumann Entropy" :number="2">
 
-给定来自某类已知分布的随机样本，生成更大的、与真实样本不可区分的数据集。
+For a quantum state $\rho$, the von Neumann entropy is
+$S(\rho)=-\operatorname{Tr}(\rho\log_2\rho)=-\sum_i\lambda_i\log_2\lambda_i$.
 
 </Bra>
 
 <Bra type="proof">
 
-由 $K_i^\dagger K_i$ 的半正定性即可得出完备性。$\square$
+由 $K_i^\dagger K_i$ 的半正定性即可得出完备性。Completeness follows from $\sum_i K_i^\dagger K_i=\mathbf{1}$. $\square$
 
 </Bra>
 
 ---
 
-# Bra · 语义色调
+# §1 · Main Results · *Proof Style*
+
+<Bra type="theorem" name="Subadditivity" :number="3">
+
+For a bipartite quantum state $\rho_{AB}$,
+$$
+S(\rho_{AB}) \le S(\rho_A)+S(\rho_B).
+$$
+
+</Bra>
+
+<Bra type="proof">
+
+The result follows by monotonicity of relative entropy under the partial trace. Equivalently, applying strong subadditivity to a purification of $\rho_{AB}$ yields the desired inequality. $\square$
+
+</Bra>
+
+<Bra type="corollary" name="Entanglement Entropy">
+
+For a pure bipartite state $|\psi_{AB}\rangle$, $S(\rho_{AB})=0$ and $S(\rho_A)=S(\rho_B)$.
+
+</Bra>
+
+---
+
+# Template · Design System · *Semantic Tones*
 
 <div grid="~ cols-2 gap-3">
 
-<Bra title="Default" tone="default">
+<Bra title="Theorem" tone="default">
 
-默认主题色
-
-</Bra>
-
-<Bra title="Primary" tone="primary">
-
-强调核心内容
+主定理、核心结果，紫色高亮。
 
 </Bra>
 
-<Bra title="Success" tone="success">
+<Bra title="Definition" tone="primary">
 
-正面结论
-
-</Bra>
-
-<Bra title="Warning" tone="warning">
-
-需要注意
+定义、符号约定，蓝色强调。
 
 </Bra>
 
-<Bra title="Danger" tone="danger">
+<Bra title="Lemma" tone="success">
 
-关键警示
+辅助性结论，绿色提示正向进展。
 
 </Bra>
 
-<Bra title="Muted" tone="muted">
+<Bra title="Remark" tone="warning">
 
-次要信息
+补充说明和注意事项，琥珀色。
+
+</Bra>
+
+<Bra title="Corollary" tone="danger">
+
+重要衍生结果，玫红色。
+
+</Bra>
+
+<Bra title="Proof" tone="muted">
+
+证明过程和次要支撑信息，灰色。
 
 </Bra>
 
@@ -182,29 +146,88 @@ $$
 
 ---
 
-# Bra · 样式变体
+# §2 · Method Comparison · *Table*
 
-<Bra title="无边框纯背景" :border="false">
+<div class="tbl-wrap">
 
-`:border="false"` — 仅背景色，无边框。
+| Method | Sample complexity | Quantum resource | Notes |
+| --- | --- | --- | --- |
+| **Tomography** | $O(d^4)$ | Classical measurement | Baseline with exponential overhead |
+| **Classical shadows** | $O(d^2)$ | Random Clifford | Random measurement, quadratic gain |
+| **Entangled measurement** | $O(d)$ | Auxiliary entanglement | Information-theoretic optimal rate |
+| **Lower bound** | $\Omega(d)$ | Theoretical limit | Cannot be asymptotically improved |
 
-</Bra>
+</div>
 
-<Bra title="斜体正文" italic>
+<Bra type="remark">
 
-`italic` — 正文斜体，适合定义或引述。
-
-</Bra>
-
-<Bra title="自定义颜色" bg-color="rgba(99,102,241,0.08)" title-color="#6366f1" border-color="rgba(99,102,241,0.36)">
-
-`bg-color` / `title-color` / `border-color` — 底层颜色覆写。
+Here $d=2^n$ is the Hilbert-space dimension of an $n$-qubit system. The entangled method reaches the information-theoretic lower bound.
 
 </Bra>
 
 ---
 
-# PaperCover · 学术封面（数组式）
+# §2 · Implementation · *Code Block*
+
+```python
+import jax
+import jax.numpy as jnp
+
+@jax.jit
+def von_neumann_entropy(rho: jnp.ndarray) -> float:
+    eigenvalues = jnp.linalg.eigvalsh(rho)
+    eigenvalues = jnp.clip(eigenvalues, 1e-12, 1.0)
+    return float(-jnp.sum(eigenvalues * jnp.log2(eigenvalues)))
+```
+
+行内代码示例：`jnp.trace(obs @ rho)` 计算矩阵迹。按 <kbd>Space</kbd> 翻页，按 <kbd>O</kbd> 进入总览。
+
+---
+layout: section
+sectionNumber: §2
+tags:
+  - Teleportation
+  - QKD
+  - Protocols
+---
+
+# Applications
+
+Quantum teleportation, quantum key distribution, and entanglement-assisted protocols.
+
+::decoration::
+<svg width="380" height="260" viewBox="0 0 380 260" fill="none" aria-hidden="true">
+  <path d="M42 170 C96 70, 164 70, 218 170 S340 270, 360 128" stroke="#7229E8" stroke-width="3" opacity=".95"/>
+  <circle cx="42" cy="170" r="10" fill="#8B3CF7"/>
+  <circle cx="218" cy="170" r="10" fill="#8B3CF7"/>
+  <circle cx="360" cy="128" r="10" fill="#E11D48"/>
+  <path d="M82 204 H298" stroke="#C4B5FD" stroke-width="2" stroke-dasharray="7 7"/>
+  <circle cx="190" cy="204" r="46" stroke="#C4B5FD" stroke-width="2"/>
+</svg>
+::
+
+---
+
+# §2 · Applications · *Protocol Steps*
+
+<div class="steps">
+  <div class="step"><div class="step-n">1</div><div class="step-body"><strong>Entangle.</strong> Alice applies CNOT and Hadamard gates to $|\psi\rangle\otimes A'$.</div></div>
+  <div class="step"><div class="step-n">2</div><div class="step-body"><strong>Measure.</strong> Alice measures in the computational basis and obtains $m\in\{00,01,10,11\}$.</div></div>
+  <div class="step"><div class="step-n">3</div><div class="step-body"><strong>Communicate.</strong> Alice sends two classical bits to Bob through a channel limited by $c$.</div></div>
+  <div class="step"><div class="step-n">4</div><div class="step-body"><strong>Correct.</strong> Bob applies the corresponding Pauli operator from $\{I,X,Z,XZ\}$.</div></div>
+</div>
+
+<p style="margin-top: 1rem;">
+  <span class="badge badge-v">SVD-based proof</span>
+  <span class="badge badge-g">Dark-mode ready</span>
+  <span class="badge badge-b">Quantum template</span>
+</p>
+
+---
+class: centered
+---
+
+# PaperCover · *Academic Cover*
 
 <PaperCover
   title="Exponential Speedup in Measurement Property Learning"
@@ -222,11 +245,15 @@ $$
 />
 
 ---
+class: centered
+---
 
-# PaperCover · 对象式 + 自定义字号
+# PaperCover · *Deco Mode*
 
 <PaperCover
+  deco
   title="Cloning is as Hard as Learning"
+  subtitle="A compact paper-title layout with a faint Bloch-sphere watermark"
   :authors="[
     { name: 'Alice', mark: '1' },
     { name: 'Bob', mark: '2' },
@@ -235,28 +262,5 @@ $$
     { mark: '1', text: 'Department A, University X' },
     { mark: '2', text: 'Department B, University Y' },
   ]"
-  title-size="2.5rem"
+  title-size="2.15rem"
 />
-
----
-
-# 投影仪模式
-
-在 frontmatter 添加 `projector: true` 即可启用投影仪优化：
-
-- **对比度增强** — RGB 16–235 动态范围压缩，避免纯黑/纯白溢出
-- **边框加粗** — 代码块、表格、`<kbd>` 边框加粗加深
-- **字重提升** — 标题 700、正文 450，防止细笔画在投影上模糊
-- **透明度补偿** — 低透明度元素自动提亮，保证后排可读
-
-> 投影仪模式由 `global-bottom.vue` 通过 `.projector-mode` CSS 类全局切换，覆盖 `squircle.css` 中的 `--ket-*` 变量。
-
----
-layout: cover
-gradient: false
-glass: true
----
-
-# Glass 玻璃效果
-
-cover 布局 `glass: true` 变体（逐页覆盖 headmatter 的 `gradient`）

@@ -1,18 +1,23 @@
-/* styles/fonts.css */
+/* styles/fonts.css — font loading + weight/size ramp.
+   Font family aligned with the Quantum template: Inter for text,
+   JetBrains Mono for code. Geist remains bundled as the offline
+   fallback when Google Fonts is unreachable. */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @font-face {
   font-family: 'Geist';
   src: url('./fonts/Geist.woff2') format('woff2');
-  font-weight: 100 900; 
-  font-style: normal;   
+  font-weight: 100 900;
+  font-style: normal;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Geist';
   src: url('./fonts/Geist-Italic.woff2') format('woff2');
-  font-weight: 100 900; 
-  font-style: italic;   
+  font-weight: 100 900;
+  font-style: italic;
   font-display: swap;
 }
 
@@ -25,8 +30,21 @@
 }
 
 /* ============================================
+   Font family — Inter primary, Geist offline fallback
+   ============================================ */
+.slidev-layout {
+  font-family: 'Inter', 'Geist', system-ui, -apple-system, sans-serif;
+}
+
+.slidev-layout code,
+.slidev-layout pre,
+.slidev-layout kbd {
+  font-family: 'JetBrains Mono', 'Geist Mono', 'Fira Code', monospace;
+}
+
+/* ============================================
    字重层级系统
-   Geist 字体支持 100-900 可变字重
+   Inter 支持 300–800；Geist 备选支持 100–900 可变字重。
    ============================================ */
 
 /* 正文基础字重 */
@@ -39,20 +57,22 @@
 }
 
 /* 标题层级字重 + 字号
-   字号参考 Quantum 模板，整体收紧（原 text-4xl h1 偏大）。
-   不引入 10–11px 的最小字号，保证投影可读。 */
+   对齐 Quantum 模板：内容页主标题 700 字重、负字距。 */
 .slidev-layout h1 {
-  font-weight: 620 !important;
+  font-weight: 700 !important;
   font-size: 1.875rem; /* 30px — 内容页主标题 */
+  letter-spacing: -0.022em;
+  line-height: 1.2;
 }
 
 .slidev-layout h2 {
-  font-weight: 580 !important;
+  font-weight: 600 !important;
   font-size: 1.5rem; /* 24px */
+  letter-spacing: -0.01em;
 }
 
 .slidev-layout h3 {
-  font-weight: 540 !important;
+  font-weight: 600 !important;
   font-size: 1.25rem; /* 20px */
 }
 
@@ -63,22 +83,22 @@
 
 .slidev-layout h5,
 .slidev-layout h6 {
-  font-weight: 460 !important;
+  font-weight: 500 !important;
 }
 
 /* 强调文本 */
 .slidev-layout strong,
 .slidev-layout b {
-  font-weight: 520;
+  font-weight: 600;
 }
 
-/* 代码区域保持较轻字重，提升可读性 */
+/* 代码区域保持中等字重，提升可读性 */
 .slidev-layout code,
 .slidev-layout pre {
-  font-weight: 350;
+  font-weight: 400;
 }
 
 /* 引用块 */
 .slidev-layout blockquote {
-  font-weight: 360;
+  font-weight: 400;
 }

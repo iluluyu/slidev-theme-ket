@@ -1,5 +1,5 @@
 <template>
-  <div class="slidev-layout cover" :class="{ 'cover-gradient': gradient, 'cover-glass': glass }">
+  <div class="slidev-layout cover" :class="{ 'cover-gradient': gradient }">
     <div class="cover-content">
       <slot />
       <div class="cover-meta" v-if="$slidev.configs.author || $slidev.configs.date || $slidev.configs.organization">
@@ -13,9 +13,7 @@
 
 <script setup lang="ts">
 // Per-slide frontmatter takes precedence, then falls back to headmatter (global).
-// This lets one deck mix gradient and glass covers without editing the headmatter.
 const gradient = $frontmatter.gradient ?? $slidev.configs.gradient ?? false
-const glass = $frontmatter.glass ?? $slidev.configs.glass ?? false
 
 function formatDate(raw: unknown): string {
   if (!raw) return ''
