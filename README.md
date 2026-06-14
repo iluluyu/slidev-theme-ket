@@ -2,12 +2,12 @@
 
 [![NPM version](https://img.shields.io/npm/v/slidev-theme-ket?color=3AB9D4&label=)](https://www.npmjs.com/package/slidev-theme-ket)
 
-A (...) theme for [Slidev](https://github.com/slidevjs/slidev).
+An academic theme for [Slidev](https://github.com/slidevjs/slidev) — built for talks with theorems, definitions, math, and projector projection. Features `Bra` theorem blocks, `PaperCover` academic covers, squircle rounded corners, Geist typography, and a projector-safe contrast mode.
 
 <!--
   Learn more about how to write a theme:
   https://sli.dev/guide/write-theme.html
---->
+-->
 
 <!--
   run `npm run dev` to check out the slides for more details of how to start writing a theme
@@ -33,7 +33,58 @@ Learn more about [how to use a theme](https://sli.dev/guide/theme-addon#use-them
 
 This theme provides the following layouts:
 
-> TODO:
+### `cover`
+
+Title slide. Reads presenter metadata from the headmatter and renders it below the title.
+
+```yaml
+---
+theme: ket
+author: Luyu Lu
+organization: Fudan University
+date: 2026-06-14
+gradient: true
+---
+```
+
+- `gradient: true` — gradient text fill for the title.
+- `glass: true` — frosted-glass gradient (mutually exclusive with `gradient`).
+- `author` / `organization` / `date` — shown under the title (`organization` accepts HTML).
+
+`gradient` and `glass` can be set **per slide** to mix cover variants in one deck:
+
+```markdown
+---
+layout: cover
+gradient: false
+glass: true
+---
+
+# Glass variant
+```
+
+### `intro`
+
+Centered layout, ideal for section transitions or self-introduction.
+
+### `default`
+
+Base content layout (inherited from Slidev's built-in `layouts-base.css`).
+
+## Modes
+
+### Projector mode
+
+Add `projector: true` to the headmatter to optimize for projection — RGB 16–235 dynamic-range compression, bolder borders/weights, and opacity compensation so faint elements stay readable from the back row.
+
+```yaml
+---
+theme: ket
+projector: true
+---
+```
+
+Toggled globally by `global-bottom.vue` via the `.projector-mode` class, which overrides the `--ket-*` CSS variables from `squircle.css`.
 
 ## Components
 
@@ -87,7 +138,7 @@ Compatibility: old props like `customTitle` and `inline` still work, so existing
 
 ### `PaperCover`
 
-Academic paper cover block for title, authors, and affiliations.
+Academic paper cover block for title, authors, and affiliations. The title is centered and, when `gradient: true` (or `glass: true`) is set in the frontmatter, rendered with the same signature gradient as the `cover` layout — so a `PaperCover` slide matches the deck's cover style.
 
 ```vue
 <PaperCover

@@ -5,8 +5,8 @@
   --ket-radius-md: 12px;
   --ket-inline-code-bg: rgba(0, 0, 0, 0.04); /* Light background for maximum text contrast */
   --ket-inline-code-border: rgba(0, 0, 0, 0.08); /* Subtle border for outline visibility on projectors */
-  --ket-bra-bg-default: rgba(45, 159, 179, 0.07); /* Light theme-tinted background (looks clean, doesn't conflict with text) */
-  --ket-border-color-default: rgba(45, 159, 179, 0.20); /* Light theme-tinted border for definition boundaries */
+  --ket-bra-bg-default: rgba(124, 58, 237, 0.06); /* Violet-tinted background (theme primary) */
+  --ket-border-color-default: rgba(124, 58, 237, 0.22); /* Violet-tinted border for definition boundaries */
 }
 
 .dark {

@@ -38,21 +38,27 @@
   font-weight: 400;
 }
 
-/* 标题层级字重 */
+/* 标题层级字重 + 字号
+   字号参考 Quantum 模板，整体收紧（原 text-4xl h1 偏大）。
+   不引入 10–11px 的最小字号，保证投影可读。 */
 .slidev-layout h1 {
   font-weight: 620 !important;
+  font-size: 1.875rem; /* 30px — 内容页主标题 */
 }
 
 .slidev-layout h2 {
   font-weight: 580 !important;
+  font-size: 1.5rem; /* 24px */
 }
 
 .slidev-layout h3 {
   font-weight: 540 !important;
+  font-size: 1.25rem; /* 20px */
 }
 
 .slidev-layout h4 {
   font-weight: 500 !important;
+  font-size: 1.0625rem; /* 17px */
 }
 
 .slidev-layout h5,

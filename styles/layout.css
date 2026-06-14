@@ -1,20 +1,39 @@
 :root {
-  --slidev-theme-primary-light: #4ec3d0 !important;
-  --slidev-theme-primary: #2d9fb3 !important;
-  --slidev-theme-primary-dark: #1a6e88 !important;
-  --slidev-slide-container-background: white !important;
-  --slidev-controls-foreground: #333 !important;
+  /* Palette adapted from the Quantum template: quantum-violet accent on a
+     light parchment ground with deep indigo-black text. */
+  --slidev-theme-primary-light: #C4B5FD !important;
+  --slidev-theme-primary: #7C3AED !important;
+  --slidev-theme-primary-dark: #6D28D9 !important;
+  --slidev-slide-container-background: #F8F9FC !important;
+  --slidev-controls-foreground: #4B4873 !important;
   --font-size-title: 2rem;
   --font-size-subtitle: 1.5rem;
   --font-size-body: 2rem;
+
+  /* Signature title gradients — shared by the cover layout and PaperCover.
+     Define once here so both stay in sync. */
+  --ket-gradient-cover: linear-gradient(135deg, #FF6F00 0%, #DE5471 25%, #A948C9 50%, #6553D8 75%, #1C73FF 100%);
+  --ket-gradient-glass: linear-gradient(180deg, #fde2e4 0%, #e2c6f6 40%, #b8d4ff 100%);
+}
+
+/* Dark mode: deep indigo-black ground, soft lavender text. */
+.dark {
+  --slidev-slide-container-background: #1B1726 !important;
 }
 
 .slidev-layout {
-  @apply px-3 py-2;
+  /* Generous edge breathing room — px-12 (48px) sides, py-8 (32px) top/bottom.
+     Replaces the prior px-3 py-2 which left content jammed against the edges. */
+  @apply px-12 py-8;
+  color: #1A1640;
 
   h1 { @apply mb-1; }
   h2 { @apply mb-1 mt-1; }
   h3 { @apply mb-1 mt-1; }
+}
+
+.dark .slidev-layout {
+  color: #E8E6F0;
 }
 
 .slidev-layout.cover {
@@ -25,15 +44,15 @@
   }
 
   h1 {
-    @apply text-6xl leading-tight mb-0;
+    @apply leading-tight mb-0;
+    font-size: 2.75rem;
   }
 
   h1 + p {
     @apply opacity-50 mb-1 text-lg;
   }
 
-  /* Gradient styles are now handled in pdf-gradient.css
-     This ensures better browser support and PDF compatibility */
+  /* Gradient / glass title fills are defined below (shared with PaperCover). */
 
   .cover-meta {
     @apply mt-3 flex flex-col items-center gap-1 opacity-80;
@@ -83,7 +102,8 @@
   @apply h-full grid;
 
   h1 {
-    @apply text-6xl leading-20;
+    @apply leading-20;
+    font-size: 2.25rem;
   }
 
   h1 + p {
@@ -97,11 +117,26 @@
   }
 }
 
-/* Intro layout gradient variants */
-.intro-gradient h1,
-.intro-gradient-glass h1,
-.intro-gradient-shimmer h1 {
-  /* Gradient styles handled in pdf-gradient.css */
+/* Cover-layout title fills. PaperCover applies the same gradients itself
+   (see components/PaperCover.vue) via the shared --ket-gradient-* variables. */
+.slidev-layout.cover.cover-gradient h1 {
+  background: var(--ket-gradient-cover);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.slidev-layout.cover.cover-glass h1 {
+  background: var(--ket-gradient-glass);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter:
+    drop-shadow(0 0 2px rgba(220, 190, 255, 0.9))
+    drop-shadow(0 0 12px rgba(180, 160, 255, 0.6))
+    drop-shadow(0 0 30px rgba(160, 140, 255, 0.3));
 }
 
 /* Table styling optimized for projector visibility (RGB 16-235) */
@@ -184,7 +219,7 @@
 
 /* Beautiful color-matched markers and custom sizing */
 .slidev-layout ul li::marker {
-  color: var(--slidev-theme-primary, #2d9fb3) !important;
+  color: var(--slidev-theme-primary, #7C3AED) !important;
   font-size: 1.15em !important; /* Custom large bullet size */
 }
 
@@ -196,7 +231,7 @@
 }
 
 .slidev-layout ul ul li::marker {
-  color: var(--slidev-theme-primary-light, #4ec3d0) !important;
+  color: var(--slidev-theme-primary-light, #C4B5FD) !important;
   font-size: 1.05em !important;
 }
 
@@ -206,7 +241,7 @@
 }
 
 .slidev-layout ul ul ul li::marker {
-  color: var(--slidev-theme-primary-dark, #1a6e88) !important;
+  color: var(--slidev-theme-primary-dark, #6D28D9) !important;
   font-size: 0.9em !important;
 }
 
@@ -224,6 +259,6 @@
 }
 
 .slidev-layout ol li::marker {
-  color: var(--slidev-theme-primary, #2d9fb3) !important;
+  color: var(--slidev-theme-primary, #7C3AED) !important;
   font-weight: 600;
 }

@@ -55,6 +55,12 @@ const props = withDefaults(defineProps<Props>(), {
   serialComma: true,
 })
 
+// Honor the deck-wide gradient / glass frontmatter so the PaperCover title
+// matches the cover layout. Per-slide frontmatter overrides headmatter
+// (same resolution order as cover.vue).
+const gradient = $frontmatter.gradient ?? $slidev.configs.gradient ?? false
+const glass = $frontmatter.glass ?? $slidev.configs.glass ?? false
+
 const normalizedAuthors = computed<NormalizedAuthor[]>(() =>
   props.authors
     .map((author) => {
@@ -127,7 +133,11 @@ function authorSuffix(index: number, author: NormalizedAuthor) {
 
 <template>
   <div class="paper-cover">
-    <h1 class="paper-cover-title" :style="titleStyle">
+    <h1
+      class="paper-cover-title"
+      :class="{ 'is-gradient': gradient && !glass, 'is-glass': glass }"
+      :style="titleStyle"
+    >
       <slot name="title">{{ title }}</slot>
     </h1>
 
@@ -155,12 +165,35 @@ function authorSuffix(index: number, author: NormalizedAuthor) {
   display: flex;
   flex-direction: column;
   align-items: center;
+  text-align: center;
 }
 
 .paper-cover-title {
   max-width: 980px;
   overflow-wrap: anywhere;
   text-wrap: balance;
+}
+
+/* Gradient / glass title fills — values come from the shared --ket-gradient-*
+   variables in layout.css, so PaperCover stays in sync with the cover layout. */
+.paper-cover-title.is-gradient {
+  background: var(--ket-gradient-cover);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.paper-cover-title.is-glass {
+  background: var(--ket-gradient-glass);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  filter:
+    drop-shadow(0 0 2px rgba(220, 190, 255, 0.9))
+    drop-shadow(0 0 12px rgba(180, 160, 255, 0.6))
+    drop-shadow(0 0 30px rgba(160, 140, 255, 0.3));
 }
 
 .paper-cover-subtitle {
