@@ -59,7 +59,7 @@
   --ket-surface: #252134;
   --ket-surface-2: #2D2940;
   --ket-border: #3A3552;
-  --ket-dot-color: rgba(196, 181, 253, 0.07);
+  --ket-dot-color: transparent; /* 暗色模式下移除量子点阵 */
 
   /* Accent light tone — badges & section tags. Translucent violet over the
      dark ground instead of the bright #EDE9FE parchment tint, so small
@@ -131,7 +131,7 @@
 
 /* Content-slide header: Quantum HTML style, with a violet eyebrow feel via
    emphasized text and a short gradient rule below the title. */
-.slidev-layout:not(.cover):not(.cover-deco):not(.intro):not(.section) > h1:first-child {
+.slidev-layout:not(.cover):not(.cover-deco):not(.intro):not(.section):not(.thanks):not(.two-columns):not(.two-cols-header) > h1:first-child {
   margin: 0 0 1.2rem;
   color: var(--ket-t1);
   font-size: 1.6875rem;
@@ -140,12 +140,12 @@
   letter-spacing: -0.022em;
 }
 
-.slidev-layout:not(.cover):not(.cover-deco):not(.intro):not(.section) > h1:first-child em {
+.slidev-layout:not(.cover):not(.cover-deco):not(.intro):not(.section):not(.thanks):not(.two-columns):not(.two-cols-header) > h1:first-child em {
   color: var(--ket-ac-m);
   font-style: normal;
 }
 
-.slidev-layout:not(.cover):not(.cover-deco):not(.intro):not(.section) > h1:first-child::after {
+.slidev-layout:not(.cover):not(.cover-deco):not(.intro):not(.section):not(.thanks):not(.two-columns):not(.two-cols-header) > h1:first-child::after {
   content: '';
   display: block;
   width: 38px;
@@ -217,6 +217,101 @@
   .affil-mark {
     font-size: 0.72em;
     color: var(--slidev-theme-primary);
+  }
+}
+
+/* ═══════════════════════════════════════════════
+   THANKS layout — centered gradient closing title.
+   Shares the cover's signature gradient (--ket-gradient-cover);
+   the title is larger because it stands alone on the slide.
+═══════════════════════════════════════════════ */
+.slidev-layout.thanks {
+  @apply h-full flex items-center justify-center text-center;
+
+  .thanks-content {
+    @apply flex flex-col items-center gap-3;
+  }
+
+  h1 {
+    @apply m-0 leading-tight;
+    font-size: 3.25rem;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+  }
+
+  /* Optional subtitle / contact line beneath the title. */
+  h1 + p {
+    @apply m-0;
+    color: var(--ket-t3);
+    font-size: 1.1rem;
+    letter-spacing: 0.01em;
+  }
+}
+
+/* Gradient title fill — same ramp as the centered cover. */
+.slidev-layout.thanks.thanks-gradient h1 {
+  background: var(--ket-gradient-cover);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ═══════════════════════════════════════════════
+   TWO-COLS-HEADER layout — header + two side-by-side columns.
+   Default slot = full-width header (h1 + optional intro);
+   `::left::` and `::right::` named slots fill the columns.
+   Set `cols` frontmatter to adjust the ratio (default 1fr 1fr).
+═══════════════════════════════════════════════ */
+.slidev-layout.two-cols-header {
+  @apply h-full flex flex-col;
+
+  > h1:first-child {
+    margin: 0 0 0.4rem;
+    color: var(--ket-t1);
+    font-size: 1.6875rem;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.022em;
+  }
+
+  > h1:first-child em {
+    color: var(--ket-ac-m);
+    font-style: normal;
+  }
+
+  /* Short gradient rule under the header, matching content-page titles. */
+  > h1:first-child::after {
+    content: '';
+    display: block;
+    width: 38px;
+    height: 3px;
+    margin-top: 9px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--ket-ac-m), var(--ket-ac-bd));
+  }
+
+  .tch-body {
+    display: grid;
+    gap: 2rem;
+    flex: 1 1 auto;
+    min-height: 0;
+    align-items: start;
+  }
+
+  .tch-col {
+    min-width: 0;
+    font-size: 0.92rem;
+  }
+
+  /* A column separator is opt-in: add `class: two-cols-divider` to the
+     slide for a faint vertical rule between the columns. */
+  &.two-cols-divider .tch-body {
+    gap: 2.6rem;
+    background-image: linear-gradient(var(--ket-border), var(--ket-border));
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 1px 100%;
   }
 }
 
@@ -525,6 +620,7 @@
   margin: 1rem 0;
   padding: 3.1rem 1.25rem 1rem !important;
   overflow: hidden auto;
+  tab-size: 2;
   border: 0 !important;
   border-radius: var(--ket-radius-md) !important;
   background: #FAFAFA !important;
@@ -562,6 +658,40 @@
 .slidev-layout pre.shiki code {
   font-size: 0.84rem;
   line-height: 1.72;
+}
+
+/* ═══════════════════════════════════════════════
+   Compact code block — opt-in via either
+     • `class: code-compact` on the slide frontmatter (every block on the
+       slide), or
+     • a `<div class="code-compact">` wrapper around a single fenced block.
+   Drops the macOS window chrome and tightens padding / line-height for
+   dense snippets or code that shares a slide (e.g. inside two columns).
+═══════════════════════════════════════════════ */
+.slidev-layout.code-compact pre.shiki,
+.slidev-layout .code-compact pre.shiki {
+  margin: 0.5rem 0;
+  padding: 0.7rem 0.95rem !important;
+  background: var(--ket-surface) !important;
+}
+
+.slidev-layout.code-compact pre.shiki::before,
+.slidev-layout .code-compact pre.shiki::before {
+  display: none;
+}
+
+.slidev-layout.code-compact pre.shiki::after,
+.slidev-layout .code-compact pre.shiki::after {
+  top: 5px;
+  right: 9px;
+  font-size: 10px;
+  opacity: 0.7;
+}
+
+.slidev-layout.code-compact pre.shiki code,
+.slidev-layout .code-compact pre.shiki code {
+  font-size: 0.78rem;
+  line-height: 1.5;
 }
 
 /* Dark mode table overrides */
@@ -726,6 +856,13 @@
   line-height: 1.55;
 }
 
+/* Reset paragraph margin inside step-body.
+   step-body content is written as markdown (so $...$ math renders),
+   which wraps it in <p>; zero the margin to keep the card tight. */
+.slidev-layout .step-body > p {
+  margin: 0;
+}
+
 .slidev-layout .badge {
   display: inline-flex;
   align-items: center;
@@ -749,4 +886,61 @@
 .slidev-layout .badge-b {
   background: var(--ket-primary-bg);
   color: var(--ket-primary-lbl);
+}
+
+/* ═══════════════════════════════════════════════
+   Figure — framed image + optional figure number + caption.
+   Rendered by components/Figure.vue. The caption is a slot, so it
+   arrives wrapped in <p>; zero its margin to keep the caption tight.
+═══════════════════════════════════════════════ */
+.slidev-layout .ket-figure {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0.75rem auto;
+}
+
+.slidev-layout .ket-figure-frame {
+  padding: 8px;
+  border-radius: var(--ket-radius-md);
+  background: var(--ket-surface);
+  box-shadow: 0 0 0 1.5px var(--ket-border);
+}
+
+.slidev-layout .ket-figure-frame img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border-radius: calc(var(--ket-radius-md) - 4px);
+}
+
+/* `flat` prop — no frame, for transparent / full-bleed art. */
+.slidev-layout .ket-figure.ket-figure-flat .ket-figure-frame {
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.slidev-layout .ket-figure-cap {
+  max-width: 94%;
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ket-t3);
+  text-align: center;
+}
+
+.slidev-layout .ket-figure-num {
+  margin-right: 0.35em;
+  color: var(--ket-ac);
+  font-weight: 600;
+}
+
+.slidev-layout .ket-figure-text {
+  color: var(--ket-t2);
+}
+
+/* The slot content is Markdown → wrapped in <p>; flatten its margin. */
+.slidev-layout .ket-figure-cap > p {
+  margin: 0;
 }

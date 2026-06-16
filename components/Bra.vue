@@ -205,9 +205,10 @@ const blockStyle = computed(() => ({
 .bra-compact,
 .bra-inline {
   /* Keep the opt-in compact variant genuinely tight — override the roomy
-     defaults above so inline theorem notes stay space-efficient. */
+     defaults above so inline theorem notes stay space-efficient.
+     ~0.4em vertical margin ≈ half a character, matching body line-height. */
   padding: 8px 14px;
-  margin: 0.2rem 0;
+  margin: 0.4em 0;
 }
 
 .bra-compact .bra-header,
@@ -222,9 +223,14 @@ const blockStyle = computed(() => ({
   display: inline;
 }
 
-.bra-compact .bra-content :deep(> p:first-child),
-.bra-inline .bra-content :deep(> p:first-child) {
+/* Compact / inline mode: force all paragraphs (not just :first-child)
+   to display inline so the header and body text stay on one line.
+   The `>` combinator inside `:deep()` can trip up older Vue scoped-style
+   compilers, so we use a plain descendant selector here. */
+.bra-compact .bra-content :deep(p),
+.bra-inline .bra-content :deep(p) {
   display: inline;
+  margin: 0;
 }
 
 .bra-type {

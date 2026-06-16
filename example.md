@@ -33,10 +33,26 @@ A framework for multipartite entanglement measures and their role in quantum com
 # Overview · *Outline*
 
 <div class="steps">
-  <div class="step"><div class="step-n">1</div><div class="step-body"><strong>Mathematical framework</strong> — quantum states, density matrices, and von Neumann entropy.</div></div>
-  <div class="step"><div class="step-n">2</div><div class="step-body"><strong>Main results</strong> — subadditivity, strong subadditivity, and Schmidt decomposition.</div></div>
-  <div class="step"><div class="step-n">3</div><div class="step-body"><strong>Applications</strong> — teleportation, entanglement-assisted communication, and protocol costs.</div></div>
-  <div class="step"><div class="step-n">4</div><div class="step-body"><strong>Design system</strong> — theorem boxes, tables, code, and page footer.</div></div>
+  <div class="step"><div class="step-n">1</div><div class="step-body">
+
+**Mathematical framework** — quantum states, density matrices, and von Neumann entropy.
+
+  </div></div>
+  <div class="step"><div class="step-n">2</div><div class="step-body">
+
+**Main results** — subadditivity, strong subadditivity, and Schmidt decomposition.
+
+  </div></div>
+  <div class="step"><div class="step-n">3</div><div class="step-body">
+
+**Applications** — teleportation, entanglement-assisted communication, and protocol costs.
+
+  </div></div>
+  <div class="step"><div class="step-n">4</div><div class="step-body">
+
+**Design system** — theorem boxes, tables, code, and page footer.
+
+  </div></div>
 </div>
 
 ---
@@ -146,9 +162,22 @@ For a pure bipartite state $|\psi_{AB}\rangle$, $S(\rho_{AB})=0$ and $S(\rho_A)=
 
 ---
 
+# Template · Design System · *Compact Mode*
+
+<Bra type="theorem" compact>Theorem has no cloning.</Bra>
+<Bra type="definition" compact>Definition — von Neumann entropy.</Bra>
+<Bra type="lemma" compact>Lemma — subadditivity holds.</Bra>
+<Bra type="remark" compact>Remark — compact for notes.</Bra>
+
+<Bra type="theorem" name="Named" compact :number="7">Compact with name and number.</Bra>
+<Bra type="proof" compact>Done via induction. $\square$</Bra>
+
+---
+
 # §2 · Method Comparison · *Table*
 
-<div class="tbl-wrap">
+<!-- 裸 markdown 管道表：不套 <div>，避免 HTML-block 与 inline markdown 层级冲突导致 $...$ 不渲染。
+     圆角外框 / 表头分割线由 styles/layout.css 的 .slidev-layout table 直接提供。 -->
 
 | Method | Sample complexity | Quantum resource | Notes |
 | --- | --- | --- | --- |
@@ -156,8 +185,6 @@ For a pure bipartite state $|\psi_{AB}\rangle$, $S(\rho_{AB})=0$ and $S(\rho_A)=
 | **Classical shadows** | $O(d^2)$ | Random Clifford | Random measurement, quadratic gain |
 | **Entangled measurement** | $O(d)$ | Auxiliary entanglement | Information-theoretic optimal rate |
 | **Lower bound** | $\Omega(d)$ | Theoretical limit | Cannot be asymptotically improved |
-
-</div>
 
 <Bra type="remark">
 
@@ -181,6 +208,71 @@ def von_neumann_entropy(rho: jnp.ndarray) -> float:
 ```
 
 行内代码示例：`jnp.trace(obs @ rho)` 计算矩阵迹。按 <kbd>Space</kbd> 翻页，按 <kbd>O</kbd> 进入总览。
+
+
+
+---
+class: code-compact
+---
+
+# Code Block · *Compact Mode*
+
+Opt into compact rendering with `class: code-compact` on the slide (every block) or by wrapping a single fence in `<div class="code-compact">` — the macOS window chrome drops and padding / line-height tighten, for dense snippets or two-column code.
+
+```python
+@jax.jit
+def partial_trace(rho: jnp.ndarray, d_a: int) -> jnp.ndarray:
+    """Trace out subsystem B of a d_a (x) d_b bipartite state."""
+    d_b = rho.shape[0] // d_a
+    return jnp.einsum('ikjk->ij', rho.reshape(d_a, d_b, d_a, d_b))
+```
+
+---
+layout: two-cols-header
+cols: 1.05fr 0.95fr
+class: code-compact
+---
+
+# Two-Column · *Code + Note*
+
+::left::
+
+```python
+@jax.jit
+def expect(state: jnp.ndarray, obs: jnp.ndarray) -> float:
+    """Expectation <O> for a pure state."""
+    return float(jnp.vdot(state, obs @ state).real)
+```
+
+::right::
+
+`layout: two-cols-header` — the default slot is the header; `::left::` / `::right::` fill the columns, and `cols` tunes the ratio.
+
+With `class: code-compact` the snippet on the left renders without window chrome, leaving room for the note on the right.
+
+---
+layout: two-cols-header
+cols: 0.9fr 1.1fr
+---
+
+# Figure · *Image References*
+
+::left::
+
+<Figure src="/figures/bloch-sphere.svg" :number="1" width="80%">
+
+**Bloch sphere** — a pure state $|\psi\rangle=\cos(\theta/2)|0\rangle+e^{i\varphi}\sin(\theta/2)|1\rangle$ lives on the unit sphere (see Fig. 1).
+
+</Figure>
+
+::right::
+
+Use `<Figure>` for proper image references:
+
+- `src` — image path; the theme ships `public/figures/bloch-sphere.svg`
+- `:number="1"` — optional `Fig. N` label in the accent color
+- `width` — CSS width; `flat` drops the frame for transparent art
+- the caption is a Markdown slot, so inline `$\ldots$` and emphasis render
 
 ---
 layout: section
@@ -211,10 +303,26 @@ Quantum teleportation, quantum key distribution, and entanglement-assisted proto
 # §2 · Applications · *Protocol Steps*
 
 <div class="steps">
-  <div class="step"><div class="step-n">1</div><div class="step-body"><strong>Entangle.</strong> Alice applies CNOT and Hadamard gates to $|\psi\rangle\otimes A'$.</div></div>
-  <div class="step"><div class="step-n">2</div><div class="step-body"><strong>Measure.</strong> Alice measures in the computational basis and obtains $m\in\{00,01,10,11\}$.</div></div>
-  <div class="step"><div class="step-n">3</div><div class="step-body"><strong>Communicate.</strong> Alice sends two classical bits to Bob through a channel limited by $c$.</div></div>
-  <div class="step"><div class="step-n">4</div><div class="step-body"><strong>Correct.</strong> Bob applies the corresponding Pauli operator from $\{I,X,Z,XZ\}$.</div></div>
+  <div class="step"><div class="step-n">1</div><div class="step-body">
+
+**Entangle.** Alice applies CNOT and Hadamard gates to $|\psi\rangle\otimes A'$.
+
+  </div></div>
+  <div class="step"><div class="step-n">2</div><div class="step-body">
+
+**Measure.** Alice measures in the computational basis and obtains $m\in\{00,01,10,11\}$.
+
+  </div></div>
+  <div class="step"><div class="step-n">3</div><div class="step-body">
+
+**Communicate.** Alice sends two classical bits to Bob through a channel limited by $c$.
+
+  </div></div>
+  <div class="step"><div class="step-n">4</div><div class="step-body">
+
+**Correct.** Bob applies the corresponding Pauli operator from $\{I,X,Z,XZ\}$.
+
+  </div></div>
 </div>
 
 <p style="margin-top: 1rem;">
@@ -264,3 +372,11 @@ class: centered
   ]"
   title-size="2.15rem"
 />
+
+---
+layout: thanks
+---
+
+# Thanks For Your Attention
+
+Quantum-style closing slide · Gradient title mirroring the cover
