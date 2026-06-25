@@ -172,6 +172,15 @@ For a pure bipartite state $|\psi_{AB}\rangle$, $S(\rho_{AB})=0$ and $S(\rho_A)=
 <Bra type="theorem" name="Named" compact :number="7">Compact with name and number.</Bra>
 <Bra type="proof" compact>Done via induction. $\square$</Bra>
 
+<!-- Titles render inline markdown too — math ($...$), **bold**, *italic*, `code` —
+     not just plain text. Useful for headers like "all outcomes in $H^\perp$". -->
+<Bra title="Hiding property → all outcomes in $H^\perp$" tone="warning" compact>
+Every measurement outcome falls in $H^{\perp}$.
+</Bra>
+<Bra title="**Recall:** the *symmetric* cloner needs $t = \Theta(2^n)$ copies" compact>
+Werner's optimal cloner projects onto the symmetric subspace.
+</Bra>
+
 ---
 
 # §2 · Method Comparison · *Table*

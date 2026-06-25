@@ -36,13 +36,15 @@
   --font-size-subtitle: 1.5rem;
   --font-size-body: 2rem;
 
+  /* Unified body-prose size — shared by slide body text (p, li), the
+     two-cols-header column, and Bra.vue's .bra-content so theorem blocks
+     read at the same scale as surrounding paragraphs. Single source of
+     truth: change it here and every consumer stays in lockstep. */
+  --ket-body-size: 0.92rem;
+
   /* Signature title gradient — shared by the cover layout and PaperCover.
      Define once here so both stay in sync. */
   --ket-gradient-cover: linear-gradient(135deg, #FF6F00 0%, #DE5471 25%, #A948C9 50%, #6553D8 75%, #1C73FF 100%);
-
-  /* Quantum dot-grid overlay — subtle radial pattern on the parchment ground. */
-  --ket-dot-color: rgba(114, 41, 232, 0.055);
-  --ket-dot-size: 44px;
 
   /* Decoration watermark opacity for cover-deco / PaperCover deco.
      Low by default (Quantum watermark style); raise to make art prominent. */
@@ -59,7 +61,6 @@
   --ket-surface: #252134;
   --ket-surface-2: #2D2940;
   --ket-border: #3A3552;
-  --ket-dot-color: transparent; /* 暗色模式下移除量子点阵 */
 
   /* Accent light tone — badges & section tags. Translucent violet over the
      dark ground instead of the bright #EDE9FE parchment tint, so small
@@ -94,25 +95,6 @@
 
 .dark .slidev-layout {
   color: var(--ket-t1);
-}
-
-/* ── Quantum dot-grid overlay ──
-   Pseudo-element so the pattern sits behind content without extra markup.
-   Pointer-events disabled so it never blocks interaction. */
-.slidev-layout::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 0;
-  background-image: radial-gradient(circle, var(--ket-dot-color) 1.5px, transparent 1.5px);
-  background-size: var(--ket-dot-size) var(--ket-dot-size);
-}
-
-/* Lift all real content above the dot grid. */
-.slidev-layout > * {
-  position: relative;
-  z-index: 1;
 }
 
 /* ═══════════════════════════════════════════════
@@ -301,7 +283,7 @@
 
   .tch-col {
     min-width: 0;
-    font-size: 0.92rem;
+    font-size: var(--ket-body-size);
   }
 
   /* A column separator is opt-in: add `class: two-cols-divider` to the

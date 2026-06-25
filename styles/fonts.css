@@ -125,6 +125,14 @@
   font-weight: 400;
 }
 
+/* 正文 / 列表字号 —— 与 Bra.vue 的 .bra-content 共享 --ket-body-size，
+   使定理块正文与周围段落以同一字号呈现，阅读体验一致。
+   表格单元格（td/th）另有专门字号，不在此列。 */
+.slidev-layout p,
+.slidev-layout li {
+  font-size: var(--ket-body-size);
+}
+
 /* 标题层级字重 + 字号
    对齐 Quantum 模板：内容页主标题 700 字重、负字距。 */
 .slidev-layout h1 {

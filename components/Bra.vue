@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
+import { renderInline } from '../utils/renderInline'
 
 type Tone = 'default' | 'primary' | 'danger' | 'warning' | 'success' | 'muted'
 
@@ -61,6 +62,10 @@ const displayTitle = computed(() => {
   return ''
 })
 
+// Render the title as inline markdown so math / **bold** / `code` in a title
+// prop render the same as slot content. See utils/renderInline.ts.
+const renderedTitle = computed(() => renderInline(displayTitle.value))
+
 const showHeader = computed(() => {
   return displayTitle.value || props.name || props.number !== undefined
 })
@@ -113,7 +118,7 @@ const blockStyle = computed(() => ({
     :style="blockStyle"
   >
     <span v-if="showHeader" class="bra-header">
-      <span v-if="displayTitle" class="bra-type">{{ displayTitle }}</span>
+      <span v-if="displayTitle" class="bra-type" v-html="renderedTitle" />
       <span v-if="number !== undefined" class="bra-number">{{ number }}</span>
       <span v-if="name" class="bra-name">({{ name }})</span>
       <span class="bra-dot">.</span>
@@ -257,7 +262,9 @@ const blockStyle = computed(() => ({
 .bra-content {
   font-weight: 400;
   color: inherit;
-  font-size: 0.92rem;
+  /* Shares --ket-body-size with slide body text (p, li) so theorem-block
+     prose reads at the exact same scale as surrounding paragraphs. */
+  font-size: var(--ket-body-size, 0.92rem);
   line-height: 1.72;
 }
 
@@ -267,6 +274,18 @@ const blockStyle = computed(() => ({
 
 .bra-content :deep(p) {
   margin: 0.3rem 0;
+}
+
+/* Emphasized terms (Markdown **bold** / __bold__) pick up the tone's label
+   color so key terms echo the header label and read as highlights rather
+   than plain body text. `--bra-title-color` is defined per tone above and
+   also honored when the `titleColor` prop is set, so every block resolves
+   to a real accent color. Specificity (.bra-content + scope attr + element)
+   wins over the global `.slidev-layout strong` color; font-weight stays at
+   the shared 600 from fonts.css. */
+.bra-content :deep(strong),
+.bra-content :deep(b) {
+  color: var(--bra-title-color);
 }
 
 .bra-content :deep(.katex-display) {
