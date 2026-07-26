@@ -170,7 +170,10 @@ For a pure bipartite state $|\psi_{AB}\rangle$, $S(\rho_{AB})=0$ and $S(\rho_A)=
 <Bra type="remark" compact>Remark — compact for notes.</Bra>
 
 <Bra type="theorem" name="Named" compact :number="7">Compact with name and number.</Bra>
-<Bra type="proof" compact>Done via induction. $\square$</Bra>
+<Bra type="proof" compact>
+
+Done via induction. $\square$
+</Bra>
 
 <!-- Titles render inline markdown too — math ($...$), **bold**, *italic*, `code` —
      not just plain text. Useful for headers like "all outcomes in $H^\perp$". -->
@@ -282,6 +285,51 @@ Use `<Figure>` for proper image references:
 - `:number="1"` — optional `Fig. N` label in the accent color
 - `width` — CSS width; `flat` drops the frame for transparent art
 - the caption is a Markdown slot, so inline `$\ldots$` and emphasis render
+
+---
+layout: two-cols-header
+cols: 1fr 1fr
+---
+
+# Continuous Corners · *Apple-style*
+
+`corner-shape: squircle` · large radius 22px · small radius 14px
+
+::left::
+
+<Bra type="theorem" name="Ring" :number="1">
+
+Filled Bra — tinted background defines the region; no outline ring, only a soft no-spread shadow.
+
+</Bra>
+
+<Bra type="theorem" border>
+
+Outlined Bra — a real colored border traces the squircle evenly.
+
+</Bra>
+
+<div class="steps">
+  <div class="step"><div class="step-n">1</div><div class="step-body">
+
+Step card — 1px border + soft shadow.
+
+  </div></div>
+</div>
+
+::right::
+
+```python
+# 21px squircle code frame
+x = jnp.trace(obs @ rho)
+```
+
+Inline `code` and <kbd>Tab</kbd> use the small 14px radius.
+
+| Surface | radius |
+| --- | --- |
+| Code · Table · Bra | 22px |
+| Inline code · kbd | 14px |
 
 ---
 layout: section

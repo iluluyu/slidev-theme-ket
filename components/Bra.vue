@@ -141,18 +141,22 @@ const blockStyle = computed(() => ({
 .bra-block {
   background-color: var(--bra-bg-color);
   color: var(--bra-color, var(--ket-t1, inherit));
-  border-radius: var(--ket-radius-md, 12px);
+  border-radius: var(--ket-radius-md, 21px);
+  corner-shape: var(--ket-corner-shape, squircle);
   /* Generous but layout-friendly spacing: ~11px external margin gives stacked
      blocks clear breathing room (margins collapse in block layout, so the
      inter-block gap equals this single value), while 16/20 padding keeps the
      interior airy without bloating short blocks. */
   padding: 16px 20px;
   margin: 0.7rem 0;
-  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.06);
+  /* 填充型 Bra：用背景色完成分区，仅保留无 spread 的柔和投影。
+     不再用 0 0 0 1.5px 描边环 —— 超椭圆角部会让 spread ring 粗细不均。
+     --ket-surface-shadow 在 squircle.css :root / .dark 中按明暗分别定义。 */
+  box-shadow: var(--ket-surface-shadow, none);
 }
 
 .dark .bra-block {
-  box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--bra-border-color) 24%, transparent);
+  box-shadow: var(--ket-surface-shadow, none);
 }
 
 /* ── Semantic tones (quantum 6-color system) ── */

@@ -1,38 +1,68 @@
-/* 统一圆角 - Slidev Theme Ket */
+/* 统一圆角 - Slidev Theme Ket
+   Apple 风格连续方圆角 (corner-shape: squircle ≈ superellipse(2))。
+   Chromium 149+ 原生支持；不支持 corner-shape 的浏览器会忽略它并就近取回
+   旧 G1 圆弧尺度（见下方 @supports 降级）。 */
 
 :root {
-  --ket-radius-sm: 8px;
-  --ket-radius-md: 12px;
+  /* 大 / 小圆角：与旧 G1 普通圆弧 12px / 8px 视觉等效，就近取整。
+     squircle 会把圆角“掚平”——同样的切除面积，对角线处切得更浅；
+     而人眼正是按“对角线内缩深度”判断圆角大小，故以该指标等效。
+     实测 (Chromium corner-shape: squircle，亚像素对角内缩) :
+       · 旧 circle 8  → 2.35px → 匹配 squircle 14 (2.28px)
+       · 旧 circle 12 → 4.37px → 匹配 squircle 22 (4.46px)
+     故大圆角取 22（面积等效为 21，但对角线偏浅 ~0.6px，观感偏小）；
+     小圆角取 14。 */
+  --ket-radius-sm: 14px;
+  --ket-radius-md: 22px;
+  --ket-corner-shape: squircle;
+
+  /* 无 spread 的柔和投影：用于白色表面与填充型 Bra。
+     绝不与描边环 (0 0 0 1.5px ...) 混用 —— 超椭圆角部会让 spread ring 显得粗细不均。 */
+  --ket-surface-shadow: 0 2px 8px rgba(27, 24, 64, 0.045);
+
   --ket-inline-code-bg: rgba(0, 0, 0, 0.04); /* Light background for maximum text contrast */
   --ket-inline-code-border: rgba(0, 0, 0, 0.08); /* Subtle border for outline definition */
 }
 
 .dark {
+  /* 暗色背景上需要更强的投影才能读出层次，但仍保持无 spread。 */
+  --ket-surface-shadow: 0 2px 8px rgba(0, 0, 0, 0.20);
+
   --ket-inline-code-bg: rgba(255, 255, 255, 0.08);
   --ket-inline-code-border: rgba(255, 255, 255, 0.15);
 }
 
-/* 代码块 - 与 Bra / 表格 / step 块保持同一圆角尺度 */
+/* 不支持 corner-shape 的浏览器：忽略 squircle，圆弧就近取回旧 G1 尺度。
+   普通圆弧在旧值下比新的 21/14 更克制，避免降级时显得过圆。 */
+@supports not (corner-shape: squircle) {
+  :root {
+    --ket-radius-sm: 8px;
+    --ket-radius-md: 12px;
+  }
+}
+
+/* ── 代码块：21px squircle + 真 1px 边框 + 无 spread 柔和阴影 ──
+   这里是代码块边缘 (border / radius / corner-shape / shadow) 的唯一真相源。
+   layout.css 的 pre.shiki 只保留 padding / 背景 / macOS 窗口栏，不再重复声明边缘。 */
 .slidev-layout pre.shiki {
-  border: 0 !important;
+  border: 1px solid var(--ket-border, rgba(0, 0, 0, 0.10)) !important;
   border-radius: var(--ket-radius-md) !important;
-  box-shadow: 0 0 0 1.5px var(--ket-border, rgba(0, 0, 0, 0.10)) !important;
+  corner-shape: var(--ket-corner-shape, squircle);
+  box-shadow: var(--ket-surface-shadow) !important;
 }
 
-.dark .slidev-layout pre.shiki {
-  box-shadow: 0 0 0 1.5px var(--ket-border, rgba(255, 255, 255, 0.12)) !important;
-}
-
-/* 图片 */
+/* ── 圆角图片：21px squircle ── */
 .slidev-layout img[border="rounded"] {
   border-radius: var(--ket-radius-md) !important;
+  corner-shape: var(--ket-corner-shape, squircle);
 }
 
-/* 行内代码 */
+/* ── 行内代码：14px squircle，保留真 1px 边框，不加浮层阴影 ── */
 .slidev-layout :not(pre) > code:not([class*="language-"]) {
   background-color: var(--ket-inline-code-bg) !important;
   border: 1px solid var(--ket-inline-code-border, rgba(0, 0, 0, 0.08)) !important;
   border-radius: var(--ket-radius-sm) !important;
+  corner-shape: var(--ket-corner-shape, squircle);
   padding: 0.1em 0.25em !important;
   font-size: 0.9em;
 }

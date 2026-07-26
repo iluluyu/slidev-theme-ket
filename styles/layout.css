@@ -529,9 +529,11 @@
   width: 100%;
   margin: 1rem 0;
   overflow: hidden;
+  border: 1px solid var(--ket-border);
   border-radius: var(--ket-radius-md);
+  corner-shape: var(--ket-corner-shape, squircle);
   background: var(--ket-surface);
-  box-shadow: 0 0 0 1.5px var(--ket-border);
+  box-shadow: var(--ket-surface-shadow);
 }
 
 /* ═══════════════════════════════════════════════
@@ -544,22 +546,28 @@
   width: 100%;
   margin: 1rem 0;
   overflow: hidden;
-  border-collapse: collapse;
+  /* separate + spacing 0 让 1px 外框在 squircle 角部均匀绘制；
+     collapse 模式下 border-radius / corner-shape 的角部裁剪不可靠。 */
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 1px solid var(--ket-border);
   border-radius: var(--ket-radius-md);
+  corner-shape: var(--ket-corner-shape, squircle);
   background: var(--ket-surface);
-  box-shadow: 0 0 0 1.5px var(--ket-border);
+  box-shadow: var(--ket-surface-shadow);
   font-size: 0.9rem;
 }
 
 .slidev-layout .tbl-wrap table,
 .slidev-layout table.dtable {
   margin: 0;
+  border: 0;
   border-radius: 0;
   box-shadow: none;
 }
 
 .slidev-layout thead tr {
-  border-bottom: 2px solid var(--ket-border);
+  border-bottom: 1px solid var(--ket-border);
 }
 
 /* Override layouts-base.css `tr { border-b border-main }` —
@@ -570,7 +578,7 @@
 
 .slidev-layout th {
   padding: 10px 18px;
-  border-bottom: 2px solid var(--ket-border);
+  border-bottom: 1px solid var(--ket-border);
   background-color: var(--ket-surface);
   color: var(--ket-t3);
   font-size: 0.9rem;
@@ -603,10 +611,9 @@
   padding: 3.1rem 1.25rem 1rem !important;
   overflow: hidden auto;
   tab-size: 2;
-  border: 0 !important;
-  border-radius: var(--ket-radius-md) !important;
+  /* 边缘 (border / radius / corner-shape / shadow) 由 squircle.css 统一声明，
+     此处只保留窗口栏所需的 padding 与浅色背景，避免两处规则互相覆盖。 */
   background: #FAFAFA !important;
-  box-shadow: 0 0 0 1.5px var(--ket-border) !important;
 }
 
 .slidev-layout pre.shiki::before {
@@ -704,6 +711,7 @@
   border: 1px solid rgba(0, 0, 0, 0.22) !important;
   background-color: rgba(0, 0, 0, 0.06) !important;
   border-radius: var(--ket-radius-sm);
+  corner-shape: var(--ket-corner-shape, squircle);
   padding: 0.1rem 0.3rem !important;
   font-size: 0.85em;
   box-shadow: 0 1px 0 rgba(0,0,0,0.15);
@@ -811,9 +819,11 @@
   align-items: flex-start;
   gap: 12px;
   padding: 10px 14px;
+  border: 1px solid var(--ket-border);
   border-radius: var(--ket-radius-md);
+  corner-shape: var(--ket-corner-shape, squircle);
   background: var(--ket-surface);
-  box-shadow: 0 0 0 1px var(--ket-border);
+  box-shadow: var(--ket-surface-shadow);
 }
 
 .slidev-layout .step-n {
@@ -885,22 +895,26 @@
 
 .slidev-layout .ket-figure-frame {
   padding: 8px;
+  border: 1px solid var(--ket-border);
   border-radius: var(--ket-radius-md);
+  corner-shape: var(--ket-corner-shape, squircle);
   background: var(--ket-surface);
-  box-shadow: 0 0 0 1.5px var(--ket-border);
+  box-shadow: var(--ket-surface-shadow);
 }
 
 .slidev-layout .ket-figure-frame img {
   display: block;
   max-width: 100%;
   height: auto;
-  border-radius: calc(var(--ket-radius-md) - 4px);
+  border-radius: var(--ket-radius-sm);
+  corner-shape: var(--ket-corner-shape, squircle);
 }
 
 /* `flat` prop — no frame, for transparent / full-bleed art. */
 .slidev-layout .ket-figure.ket-figure-flat .ket-figure-frame {
   padding: 0;
   background: transparent;
+  border: 0;
   box-shadow: none;
 }
 
