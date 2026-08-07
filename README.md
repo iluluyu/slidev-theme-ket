@@ -47,7 +47,7 @@ Ket pairs a quantum dot-grid ground with deep indigo text and a single violet
 accent. Semantic color appears only when it carries meaning — each `Bra` tone
 maps to a role.
 
-![Semantic components](./assets/components.png)
+![Theorem blocks](./assets/components.png)
 
 | Token | Value | Role |
 | --- | --- | --- |
