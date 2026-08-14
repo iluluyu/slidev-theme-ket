@@ -20,7 +20,7 @@
   },
   "dependencies": {
     "@slidev/types": "^52.19.0",
-    "katex": "^0.18.1",
+    "katex": "^0.18.4",
     "markdown-it": "^14.3.0"
   },
   "devDependencies": {
