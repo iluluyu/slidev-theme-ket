@@ -940,3 +940,63 @@
 .slidev-layout .ket-figure-cap > p {
   margin: 0;
 }
+
+/* ═══════════════════════════════════════════════
+   Emphasis utilities — keyword coloring, lead line, claim.
+   Absorbed from the auto deck (project/auto/styles/index.css).
+═══════════════════════════════════════════════ */
+.slidev-layout .kw-danger { color: #BE123C; font-weight: 700; }
+.slidev-layout .kw-gold { color: #B45309; font-weight: 700; }
+.slidev-layout .kw-blue { color: #1D4ED8; font-weight: 700; }
+.slidev-layout .kw-green { color: #047857; font-weight: 700; }
+.slidev-layout .kw-violet { color: #7229E8; font-weight: 700; }
+
+.dark .slidev-layout .kw-danger { color: #FB7185; }
+.dark .slidev-layout .kw-gold { color: #FBBF24; }
+.dark .slidev-layout .kw-blue { color: #60A5FA; }
+.dark .slidev-layout .kw-green { color: #34D399; }
+.dark .slidev-layout .kw-violet { color: #A78BFA; }
+
+/* Lead line: one absolutely-stacked line of text that a later click
+   swaps for the next (pair with v-click on each <p>). */
+.slidev-layout .lead-slot {
+  position: relative;
+  height: 2.8rem;
+  margin: 0 0 0.3rem;
+}
+
+.slidev-layout .lead-slot p {
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 100%;
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 560;
+  line-height: 1.3;
+  color: var(--ket-t1);
+}
+
+/* Claim: the one-sentence thesis that opens an argument page. */
+.slidev-layout .claim {
+  margin: 0 0 0.4rem;
+  font-size: 1.15rem;
+  font-weight: 520;
+  line-height: 1.35;
+  color: var(--ket-t1);
+}
+
+/* ═══════════════════════════════════════════════
+   XCard (tweet card) dark palette. Light values are the
+   component's own defaults; only dark needs overriding.
+═══════════════════════════════════════════════ */
+.dark .slidev-layout {
+  --xcard-bg: #15202b;
+  --xcard-border: #38444d;
+  --xcard-ink: #f7f9f9;
+  --xcard-strong: #ffffff;
+  --xcard-sub: #8b98a5;
+}
+
+.dark .slidev-layout .xcard {
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+}

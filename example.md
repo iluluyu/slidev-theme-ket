@@ -26,7 +26,21 @@ tag: Quantum Information · Research Seminar
 
 A framework for multipartite entanglement measures and their role in quantum communication protocols.
 
-> Cover variants in this example: `cover`, `cover-deco`, `PaperCover`, and `PaperCover deco`.
+> Cover variants in this example: `cover`, `cover-deco`, `cover-cosmic`, `PaperCover`, and `PaperCover deco`.
+
+---
+layout: cover-cosmic
+heading: Gravitational-Wave Astronomy
+date: 2026-10-06
+link: https://www.youtube.com/watch?v=demo
+linkLabel: Watch on YouTube
+linkSublabel: Simons Institute talk
+---
+
+<!-- cover-cosmic：Three.js 黑洞（引力透镜/吸积盘/差动粒子流）+ 左侧文字栈 + 毛玻璃链接卡。
+     可调 prop：innerColor、outerColor、focus（left/center）、speed、stars、quality；
+     link/linkLabel/linkSublabel 渲染玻璃卡（YouTube 链接自动换播放圈标）。
+     标题、作者、机构、日期由 headmatter 提供（标题可用本页 heading 覆盖），不要在正文里再写 # 标题。 -->
 
 ---
 
@@ -354,6 +368,52 @@ Quantum teleportation, quantum key distribution, and entanglement-assisted proto
   <circle cx="190" cy="204" r="46" stroke="#C4B5FD" stroke-width="2"/>
 </svg>
 ::
+
+---
+
+# Evidence · *XCard / XFan*
+
+<div class="lead-slot">
+  <p v-click="[0, 3]">Community voices, stacked as they arrive.</p>
+  <p v-click="3">One card per claim — the fan recomputes for any card count.</p>
+</div>
+
+<XFan>
+  <XCard name="AliceRF" handle="@alice" time="11h">
+
+Frontier models seem extremely well suited to generate workshop-style papers.
+
+  </XCard>
+  <XCard name="Bob Q." handle="@bobq" time="Jul 21" verified>
+
+**THIS IS NOT A PAPER ON ARXIV!** Start the discussion, not another preprint.
+
+  </XCard>
+  <XCard name="Carol Expt" handle="@carlhe" time="Jul 22">
+
+My agents are proving theorems I've wanted for years. <span class="hl">One-shot a good paper.</span>
+
+  </XCard>
+</XFan>
+
+<!-- XFan computes the fan transforms from the card count (no nth-child CSS);
+     each card reveals on its own click. `.hl` is the marker-pen highlight. -->
+
+---
+
+# Emphasis · *Keyword / Lead / Claim*
+
+<p class="claim">A claim line opens the argument: one sentence, `1.15rem`, tone-one color.</p>
+
+<div class="lead-slot">
+  <p v-click="[1, 2]">The lead slot swaps lines on click — <span class="kw-danger">crisis</span> first.</p>
+  <p v-click="[2, 3]">Then the <span class="kw-gold">way out</span>.</p>
+  <p v-click="3">Then the <span class="kw-blue">accumulation</span> of knowledge.</p>
+</div>
+
+Keyword tones: <span class="kw-danger">danger</span> · <span class="kw-gold">gold</span> ·
+<span class="kw-blue">blue</span> · <span class="kw-green">green</span> ·
+<span class="kw-violet">violet</span> — all with `.dark` variants.
 
 ---
 

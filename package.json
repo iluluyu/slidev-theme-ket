@@ -21,7 +21,8 @@
   "dependencies": {
     "@slidev/types": "^52.19.0",
     "katex": "^0.18.4",
-    "markdown-it": "^14.3.0"
+    "markdown-it": "^14.3.0",
+    "three": "^0.186.0"
   },
   "devDependencies": {
     "@slidev/cli": "^52.19.0",

@@ -10,8 +10,10 @@ definitions, and math.
 ## Highlights
 
 - `Bra` theorem / definition / note blocks with semantic tones
-- Four cover variants: `cover`, `cover-deco`, centered `PaperCover`, deco `PaperCover`
+- Five cover variants: `cover`, `cover-deco`, cosmic `cover-cosmic` (Three.js black hole), centered `PaperCover`, deco `PaperCover`
 - `Figure` component for referenced images with Markdown captions
+- `XCard` / `XFan` — tweet-style evidence cards that fan out with click reveals
+- Emphasis utilities: `kw-*` keyword tones, `claim`, `lead-slot` (dark-mode ready)
 - Layouts for every talk beat: cover, section, two-column, thanks
 - Quantum dot-grid background that recolors in dark mode
 - Geist typography, self-hosted (no runtime font requests)
