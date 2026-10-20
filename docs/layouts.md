@@ -86,6 +86,39 @@ A framework for multipartite entanglement measures.
 - Presenter metadata (`author` / `organization` / `date`) renders as a
   key-value row, matching the Quantum template.
 
+## `cover-cosmic`
+
+Three.js black-hole cover with a text-safe gradient and optional link card.
+
+```yaml
+---
+layout: cover-cosmic
+heading: A Research Talk
+motion: always
+quality: auto
+maxFps: 30
+---
+```
+
+- `motion: auto` (default): respect `prefers-reduced-motion`, including Windows
+  Animation Effects. `always` explicitly enables rotation even when system
+  effects are off; `never` keeps a static first frame.
+- `maxFps`: upper limit, default 30. Actual FPS is also capped by the quality
+  budget; software WebGL (SwiftShader, etc.) is limited to 12.
+- `quality: auto | low | high`: particle and resolution budget. Auto uses DPR 1
+  and a native-size scene target rather than 2× supersampling. Low reduces both.
+  Software rendering is capped regardless of requested quality.
+- `speed`, `stars`, `innerColor`, `outerColor`, `focus`, `interactive`:
+  control motion speed, stars, palette, framing and orbit interaction.
+- `heading` overrides the title; author, organization and date come from the
+  headmatter. `link`, `linkLabel`, `linkSublabel` configure the glass link card.
+
+Animation runs only on the current, intersecting live slide with a visible
+document. Overview, printing/export and next-slide previews get a static frame.
+Leaving the slide cancels both animation handles; unmounting disposes observers,
+listeners, textures, geometries, materials, render targets and the WebGL context.
+The Canvas 2D fallback follows the same motion/visibility policy.
+
 ## `default`
 
 Base content layout (inherited from Slidev's built-in `layouts-base.css`).

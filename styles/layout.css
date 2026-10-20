@@ -1,6 +1,168 @@
 :root {
-  /* ── Design tokens aligned with the Quantum template ──
-     Light parchment ground, deep indigo text, quantum-violet accent. */
+  /* ── Default palette: Ket Mono — an academic, projector-safe scheme.
+     Neutral surfaces carry the hierarchy; indigo is spent only where it
+     communicates focus. Opt back into the original quantum-violet look
+     deck-wide with headmatter `themeConfig: { palette: vivid }` — the
+     vivid blocks below restore every token. ── */
+  --slidev-theme-primary-light: #A7A5F5 !important;
+  --slidev-theme-primary: #5856D6 !important;
+  --slidev-theme-primary-dark: #3F3DAF !important;
+  --slidev-slide-container-background: #F5F5F7 !important;
+  --slidev-controls-foreground: #6E6E73 !important;
+
+  /* Focus ramp — one restrained quantum-indigo family. */
+  --ket-ac: #5856D6;
+  --ket-ac-m: #5856D6;
+  --ket-ac-lt: #F0EFFF;
+  --ket-ac-bd: #D9D8F8;
+
+  /* Neutral type ramp. */
+  --ket-t1: #1D1D1F;
+  --ket-t2: #424245;
+  --ket-t3: #6E6E73;
+
+  /* Surfaces and hairlines. */
+  --ket-surface: #FFFFFF;
+  --ket-surface-2: #F5F5F7;
+  --ket-border: #D2D2D7;
+  --ket-border-soft: #E8E8ED;
+
+  /* Soft no-spread shadow for white surfaces and filled Pad blocks
+     (declared here and in squircle.css; vivid overrides it below).
+     Geometry stays ket's single 0 2px 8px layer — only the tint is
+     palette-driven: mono neutral black, vivid indigo-violet. */
+  --ket-surface-shadow: 0 2px 8px rgba(0, 0, 0, 0.045);
+
+  /* Semantic tones stay distinguishable while fills stay close to
+     neutral. Consumed by Pad tones, .badge-* and the semantic-grid demo. */
+  --ket-default-bg: #F3F2FC; --ket-default-lbl: #4D4BB7;
+  --ket-primary-bg: #F0F6FC; --ket-primary-lbl: #0066CC;
+  --ket-success-bg: #F1F7F3; --ket-success-lbl: #1A7440;
+  --ket-warning-bg: #FBF7EE; --ket-warning-lbl: #8A5A00;
+  --ket-danger-bg:  #FBF1F2; --ket-danger-lbl:  #B42336;
+  --ket-muted-bg:   #F5F5F7; --ket-muted-lbl:   #6E6E73;
+
+  --font-size-title: 2rem;
+  --font-size-subtitle: 1.5rem;
+  --font-size-body: 2rem;
+
+  /* Unified body-prose size — shared by slide body text (p, li), the
+     two-cols-header column, and Pad's content block so theorem blocks
+     read at the same scale as surrounding paragraphs. Single source of
+     truth: change it here and every consumer stays in lockstep. */
+  --ket-body-size: 0.92rem;
+
+  /* Optional cover treatment: two related hues instead of a rainbow. */
+  --ket-gradient-cover: linear-gradient(108deg, #1D1D1F 0%, #5856D6 68%, #0071E3 100%);
+
+  /* ── Palette-driven components (mono values; vivid overrides below).
+     These keep ket geometry/structure fixed while colors switch. ── */
+
+  /* Actual canvas behind layouts: mono paints the page ground like the
+     standalone ket-mono theme; vivid keeps the original transparent
+     canvas (white page) behavior. */
+  --ket-canvas: var(--slidev-slide-container-background);
+  --ket-section-bg: var(--slidev-slide-container-background);
+
+  /* macOS-style code window: body fill, title-bar fill/border and muted
+     traffic-light dots. Geometry (41/62px dots, 5.5px) stays ket. */
+  --ket-code-bg: var(--ket-surface);
+  --ket-code-bar-bg: var(--ket-surface-2);
+  --ket-code-bar-border: var(--ket-border-soft);
+  --ket-code-dot-r: #D86A65;
+  --ket-code-dot-y: #D5AC58;
+  --ket-code-dot-g: #65A875;
+
+  /* Text on accent fills (step numbers). */
+  --ket-on-accent: #F5F5F7;
+
+  /* Section accents: giant watermark numeral + tag pill border. */
+  --ket-sec-num: color-mix(in srgb, var(--ket-ac) 16%, transparent);
+  --ket-tag-border: color-mix(in srgb, var(--ket-ac-bd) 40%, transparent);
+
+  /* Nested list marker colors (mono: neutral tiers, accent only at top). */
+  --ket-marker-nested: var(--ket-t3);
+  --ket-marker-nested-2: var(--ket-t3);
+
+  /* Keyword emphasis tones (kw-* utilities). */
+  --ket-kw-danger: #B42336;
+  --ket-kw-gold: #8A5A00;
+  --ket-kw-blue: #0066CC;
+  --ket-kw-green: #1A7440;
+  --ket-kw-violet: #5856D6;
+
+  /* Footer progress bar: flat accent on a faint track. */
+  --ket-progress-fill: var(--ket-ac);
+  --ket-progress-track: color-mix(in srgb, var(--ket-border) 62%, transparent);
+
+  /* Built-in Bloch-sphere decoration strokes (PaperCover / cover-deco).
+     mono spends one accent like KetOrbit; vivid keeps the violet + rose pair. */
+  --ket-deco-accent: var(--ket-ac);
+  --ket-deco-accent-alt: var(--ket-ac);
+
+  /* ── Non-palette tokens (unchanged by the palette switch) ── */
+
+  /* Decoration watermark opacity for cover-deco / PaperCover deco.
+     Low by default (Quantum watermark style); raise to make art prominent. */
+  --ket-deco-opacity: 0.15;
+  --ket-progress-height: 2px;
+}
+
+/* Dark mode: same neutral hierarchy, no second palette. */
+.dark {
+  --slidev-theme-primary-light: #A7A5F5 !important;
+  --slidev-theme-primary: #7D7AFF !important;
+  --slidev-theme-primary-dark: #A7A5F5 !important;
+  --slidev-slide-container-background: #111113 !important;
+  --ket-ac: #7D7AFF;
+  --ket-ac-m: #7D7AFF;
+  --ket-ac-lt: rgba(125, 122, 255, 0.13);
+  --ket-ac-bd: #4B496E;
+  --ket-t1: #F5F5F7;
+  --ket-t2: #D1D1D6;
+  --ket-t3: #8E8E93;
+  --ket-surface: #1C1C1E;
+  --ket-surface-2: #242426;
+  --ket-border: #3A3A3C;
+  --ket-border-soft: #2C2C2E;
+  --ket-surface-shadow: 0 2px 8px rgba(0, 0, 0, 0.20);
+
+  /* Semantic box palette — translucent accent fills with lifted labels.
+     Consumed by Pad tones, .badge-*, and the example.md semantic grid. */
+  --ket-default-bg: rgba(125, 122, 255, 0.10); --ket-default-lbl: #A7A5F5;
+  --ket-primary-bg: rgba(10, 132, 255, 0.10); --ket-primary-lbl: #64B5FF;
+  --ket-success-bg: rgba(48, 209, 88, 0.09); --ket-success-lbl: #66D486;
+  --ket-warning-bg: rgba(255, 159, 10, 0.09); --ket-warning-lbl: #E7B65E;
+  --ket-danger-bg:  rgba(255, 69, 58, 0.09);  --ket-danger-lbl:  #FF8A83;
+  --ket-muted-bg:   rgba(142, 142, 147, 0.10); --ket-muted-lbl:   #AEAEB2;
+
+  /* Palette-driven components — dark mono values. Var-indirected tokens
+     (--ket-canvas, --ket-section-bg, --ket-code-bg/bar, kw var chains,
+     progress, deco) re-resolve automatically against the dark tokens above. */
+  --ket-code-dot-r: #C75F5A;
+  --ket-code-dot-y: #C59E50;
+  --ket-code-dot-g: #5F9B6E;
+  --ket-on-accent: #F5F5F7;
+  --ket-kw-danger: #FF8A83;
+  --ket-kw-gold: #E7B65E;
+  --ket-kw-blue: #64B5FF;
+  --ket-kw-green: #66D486;
+  --ket-kw-violet: #A7A5F5;
+}
+
+/* ═══════════════════════════════════════════════
+   VIVID palette — the original quantum-violet look.
+   Opt in deck-wide with headmatter:
+
+     themeConfig:
+       palette: vivid
+
+   setup/main.ts mirrors the resolved mode onto <html data-ket-palette>,
+   which these higher-specificity blocks key off. Blocks are complete and
+   explicit (light + dark) so the old palette is fully restorable. Order
+   matters: mono base, then these overrides, vivid-dark last.
+═══════════════════════════════════════════════ */
+:root[data-ket-palette='vivid'] {
   --slidev-theme-primary-light: #C4B5FD !important;
   --slidev-theme-primary: #7229E8 !important;
   --slidev-theme-primary-dark: #6D28D9 !important;
@@ -22,9 +184,11 @@
   --ket-surface: #FFFFFF;
   --ket-surface-2: #F0F1F7;
   --ket-border: #E2E3EF;
+  --ket-border-soft: #ECECF6;
+  --ket-surface-shadow: 0 2px 8px rgba(27, 24, 64, 0.045);
 
   /* Semantic box palette — bg / label pairs (quantum 6-color system).
-     Consumed by Bra tones and the semantic-grid demo. */
+     Consumed by Pad tones and the semantic-grid demo. */
   --ket-default-bg: #EDEAFF; --ket-default-lbl: #6D28D9;
   --ket-primary-bg: #DBEAFE; --ket-primary-lbl: #1D4ED8;
   --ket-success-bg: #D1FAE5; --ket-success-lbl: #047857;
@@ -32,52 +196,76 @@
   --ket-danger-bg:  #FFE4E6; --ket-danger-lbl:  #BE123C;
   --ket-muted-bg:   #F1F2F7; --ket-muted-lbl:   #64748B;
 
-  --font-size-title: 2rem;
-  --font-size-subtitle: 1.5rem;
-  --font-size-body: 2rem;
-
-  /* Unified body-prose size — shared by slide body text (p, li), the
-     two-cols-header column, and Bra.vue's .bra-content so theorem blocks
-     read at the same scale as surrounding paragraphs. Single source of
-     truth: change it here and every consumer stays in lockstep. */
-  --ket-body-size: 0.92rem;
-
-  /* Signature title gradient — shared by the cover layout and PaperCover.
-     Define once here so both stay in sync. */
+  /* Signature title gradient — shared by the cover layout and PaperCover. */
   --ket-gradient-cover: linear-gradient(135deg, #FF6F00 0%, #DE5471 25%, #A948C9 50%, #6553D8 75%, #1C73FF 100%);
 
-  /* Decoration watermark opacity for cover-deco / PaperCover deco.
-     Low by default (Quantum watermark style); raise to make art prominent. */
-  --ket-deco-opacity: 0.15;
-  --ket-progress-height: 2px;
+  /* Palette-driven components — original ket values. */
+  --ket-canvas: transparent;
+  --ket-section-bg: var(--ket-surface);
+  --ket-code-bg: #FAFAFA;
+  --ket-code-bar-bg: #F0F1F5;
+  --ket-code-bar-border: var(--ket-border);
+  --ket-code-dot-r: #D94F4A;
+  --ket-code-dot-y: #D7A326;
+  --ket-code-dot-g: #29A94E;
+  --ket-on-accent: #E6E3EB;
+  --ket-sec-num: rgba(139, 60, 247, 0.18);
+  --ket-tag-border: rgba(196, 181, 253, 0.35);
+  --ket-marker-nested: var(--slidev-theme-primary-light);
+  --ket-marker-nested-2: var(--slidev-theme-primary-dark);
+  --ket-kw-danger: #BE123C;
+  --ket-kw-gold: #B45309;
+  --ket-kw-blue: #1D4ED8;
+  --ket-kw-green: #047857;
+  --ket-kw-violet: #7229E8;
+  --ket-progress-fill: linear-gradient(90deg, var(--ket-ac-m), var(--ket-ac-bd));
+  --ket-progress-track: transparent;
+  --ket-deco-accent: #7229E8;
+  --ket-deco-accent-alt: #E11D48;
 }
 
-/* Dark mode: deep indigo-black ground, soft lavender text. */
-.dark {
+.dark[data-ket-palette='vivid'] {
   --slidev-slide-container-background: #1B1726 !important;
+  --ket-ac: #7229E8;
+  --ket-ac-m: #8B3CF7;
+  --ket-ac-lt: rgba(139, 60, 247, 0.20);
+  --ket-ac-bd: #C4B5FD;
   --ket-t1: #E8E6F0;
   --ket-t2: #C4C0DC;
   --ket-t3: #8E8BAD;
   --ket-surface: #252134;
   --ket-surface-2: #2D2940;
   --ket-border: #3A3552;
+  --ket-border-soft: #3A3552;
+  --ket-surface-shadow: 0 2px 8px rgba(0, 0, 0, 0.20);
 
   /* Accent light tone — badges & section tags. Translucent violet over the
      dark ground instead of the bright #EDE9FE parchment tint, so small
      pills read as part of the dark UI rather than glowing chips. */
-  --ket-ac-lt: rgba(139, 60, 247, 0.20);
 
   /* Semantic box palette — translucent accent backgrounds with bright labels,
-     so Bra blocks (and badges / semantic-grid) read as tinted dark zones
-     instead of glowing pastel cards against the deep ground. Each label is
-     lifted to a luminous tier for contrast on the translucent fill.
-     Consumed by Bra.vue tones, .badge-*, and the example.md semantic grid. */
+     so Pad blocks (and badges / semantic-grid) read as tinted dark zones
+     instead of glowing pastel cards against the deep ground. */
   --ket-default-bg: rgba(139, 60, 247, 0.16); --ket-default-lbl: #C4B5FD;
   --ket-primary-bg: rgba(59, 130, 246, 0.16); --ket-primary-lbl: #93C5FD;
   --ket-success-bg: rgba(16, 185, 129, 0.16); --ket-success-lbl: #6EE7B7;
   --ket-warning-bg: rgba(245, 158, 11, 0.16); --ket-warning-lbl: #FBBF24;
   --ket-danger-bg:  rgba(244, 63, 94, 0.16);  --ket-danger-lbl:  #FDA4AF;
   --ket-muted-bg:   rgba(148, 163, 184, 0.14); --ket-muted-lbl:   #94A3B8;
+
+  --ket-code-bg: #20202B;
+  --ket-code-bar-bg: #2A2A36;
+  --ket-code-dot-r: #D94F4A;
+  --ket-code-dot-y: #D7A326;
+  --ket-code-dot-g: #29A94E;
+  --ket-on-accent: #E6E3EB;
+  --ket-sec-num: rgba(139, 60, 247, 0.18);
+  --ket-tag-border: rgba(196, 181, 253, 0.35);
+  --ket-kw-danger: #FB7185;
+  --ket-kw-gold: #FBBF24;
+  --ket-kw-blue: #60A5FA;
+  --ket-kw-green: #34D399;
+  --ket-kw-violet: #A78BFA;
 }
 
 .slidev-layout {
@@ -86,6 +274,9 @@
   padding: 28px 64px 40px;
   position: relative;
   overflow: hidden;
+  /* Canvas fill is palette-driven: mono paints the page ground, vivid keeps
+     the original transparent canvas (white page) behavior. */
+  background: var(--ket-canvas, transparent);
   color: var(--ket-t1);
 
   h1 { @apply mb-1; }
@@ -111,8 +302,8 @@
   justify-content: safe center;
 }
 
-/* Content-slide header: Quantum HTML style, with a violet eyebrow feel via
-   emphasized text and a short gradient rule below the title. */
+/* Content-slide header: restrained emphasis and a full-width hairline.
+   Both palettes use the mono-style divider; only its border color changes. */
 .slidev-layout:not(.cover):not(.cover-deco):not(.intro):not(.section):not(.thanks):not(.two-columns):not(.two-cols-header) > h1:first-child {
   margin: 0 0 1.2rem;
   color: var(--ket-t1);
@@ -130,11 +321,10 @@
 .slidev-layout:not(.cover):not(.cover-deco):not(.intro):not(.section):not(.thanks):not(.two-columns):not(.two-cols-header) > h1:first-child::after {
   content: '';
   display: block;
-  width: 38px;
-  height: 3px;
-  margin-top: 9px;
-  border-radius: 2px;
-  background: linear-gradient(90deg, var(--ket-ac-m), var(--ket-ac-bd));
+  width: 100%;
+  height: 1px;
+  margin-top: 10px;
+  background: var(--ket-border);
 }
 
 /* ═══════════════════════════════════════════════
@@ -262,15 +452,14 @@
     font-style: normal;
   }
 
-  /* Short gradient rule under the header, matching content-page titles. */
+  /* Full-width hairline, matching standard content-page titles. */
   > h1:first-child::after {
     content: '';
     display: block;
-    width: 38px;
-    height: 3px;
-    margin-top: 9px;
-    border-radius: 2px;
-    background: linear-gradient(90deg, var(--ket-ac-m), var(--ket-ac-bd));
+    width: 100%;
+    height: 1px;
+    margin-top: 10px;
+    background: var(--ket-border);
   }
 
   .tch-body {
@@ -442,7 +631,9 @@
   align-items: flex-start;
   justify-content: center;
   padding: 70px 80px;
-  background: var(--ket-surface) !important;
+  /* Palette-driven: mono blends with the canvas ground; vivid shows the
+     original white surface card on the tinted parchment ground. */
+  background: var(--ket-section-bg, var(--ket-surface)) !important;
   color: var(--ket-t1);
 }
 
@@ -457,7 +648,7 @@
 
 .slidev-layout.section .sec-num {
   margin-bottom: -4px;
-  color: rgba(139, 60, 247, 0.18);
+  color: var(--ket-sec-num, rgba(139, 60, 247, 0.18));
   font-size: 72px;
   font-weight: 800;
   line-height: 1;
@@ -490,7 +681,7 @@
 
 .slidev-layout.section .sec-tag {
   padding: 3px 12px;
-  border: 1px solid rgba(196, 181, 253, 0.35);
+  border: 1px solid var(--ket-tag-border, rgba(196, 181, 253, 0.35));
   border-radius: 999px;
   background: var(--ket-ac-lt);
   color: var(--ket-ac-m);
@@ -540,7 +731,7 @@
    Table — mirrors quantum-slides.html .tbl-wrap + .dtable.
    Outer rounded frame + header divider only; no row
    separators between or after content rows.
-   Border-radius matches Bra.vue (--ket-radius-md).
+   Border-radius matches Pad.vue (--ket-radius-md).
 ═══════════════════════════════════════════════ */
 .slidev-layout table {
   width: 100%;
@@ -600,6 +791,11 @@
 }
 
 .slidev-layout td strong {
+  /* mono: neutral body tone; vivid restores the violet accent below. */
+  color: var(--ket-t1);
+}
+
+:root[data-ket-palette='vivid'] .slidev-layout td strong {
   color: var(--ket-ac);
 }
 
@@ -612,8 +808,8 @@
   overflow: hidden auto;
   tab-size: 2;
   /* 边缘 (border / radius / corner-shape / shadow) 由 squircle.css 统一声明，
-     此处只保留窗口栏所需的 padding 与浅色背景，避免两处规则互相覆盖。 */
-  background: #FAFAFA !important;
+     此处只保留窗口栏所需的 padding 与调色板驱动的背景，避免两处规则互相覆盖。 */
+  background: var(--ket-code-bg, #FAFAFA) !important;
 }
 
 .slidev-layout pre.shiki::before {
@@ -623,12 +819,12 @@
   right: 0;
   left: 0;
   height: 34px;
-  border-bottom: 1px solid var(--ket-border);
+  border-bottom: 1px solid var(--ket-code-bar-border, var(--ket-border));
   background:
-    radial-gradient(circle at 20px 50%, #D94F4A 0 5.5px, transparent 6px),
-    radial-gradient(circle at 41px 50%, #D7A326 0 5.5px, transparent 6px),
-    radial-gradient(circle at 62px 50%, #29A94E 0 5.5px, transparent 6px),
-    #F0F1F5;
+    radial-gradient(circle at 20px 50%, var(--ket-code-dot-r, #D94F4A) 0 5.5px, transparent 6px),
+    radial-gradient(circle at 41px 50%, var(--ket-code-dot-y, #D7A326) 0 5.5px, transparent 6px),
+    radial-gradient(circle at 62px 50%, var(--ket-code-dot-g, #29A94E) 0 5.5px, transparent 6px),
+    var(--ket-code-bar-bg, #F0F1F5);
 }
 
 .slidev-layout pre.shiki::after {
@@ -694,16 +890,16 @@
 }
 
 .dark .slidev-layout pre.shiki {
-  background: #20202B !important;
+  background: var(--ket-code-bg, #20202B) !important;
 }
 
 .dark .slidev-layout pre.shiki::before {
-  border-bottom-color: var(--ket-border);
+  border-bottom-color: var(--ket-code-bar-border, var(--ket-border));
   background:
-    radial-gradient(circle at 20px 50%, #D94F4A 0 5.5px, transparent 6px),
-    radial-gradient(circle at 41px 50%, #D7A326 0 5.5px, transparent 6px),
-    radial-gradient(circle at 62px 50%, #29A94E 0 5.5px, transparent 6px),
-    #2A2A36;
+    radial-gradient(circle at 20px 50%, var(--ket-code-dot-r, #D94F4A) 0 5.5px, transparent 6px),
+    radial-gradient(circle at 41px 50%, var(--ket-code-dot-y, #D7A326) 0 5.5px, transparent 6px),
+    radial-gradient(circle at 62px 50%, var(--ket-code-dot-g, #29A94E) 0 5.5px, transparent 6px),
+    var(--ket-code-bar-bg, #2A2A36);
 }
 
 /* Keycaps (<kbd>) styling */
@@ -735,65 +931,87 @@
 }
 
 /* ═══════════════════════════════════════════════
-   Lists — premium color-matched markers
+   Lists — quiet native markers, hanging alignment, consistent nesting.
+   Direct-child selectors also handle mixed ul/ol without leaking a parent
+   marker's size or weight into a nested list. No custom Markdown syntax.
 ═══════════════════════════════════════════════ */
+.slidev-layout :is(ul, ol) {
+  list-style-position: outside;
+  padding-inline-start: 1.3em !important;
+  margin-block: 0.3rem;
+}
+
 .slidev-layout ul {
-  list-style-type: disc !important; /* Revert to native bullets to restore default bullet-to-text spacing */
-  padding-left: 1.3rem !important; /* Slightly tighter than browser default but roomy enough to prevent wrapping */
-  margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
+  list-style-type: disc;
 }
 
-.slidev-layout ul li {
-  margin-bottom: 0.2rem; /* Compact vertical spacing */
-  line-height: 1.45; /* Compact line-height */
-  color: var(--ket-t2);
-}
-
-.slidev-layout ul li::marker {
-  color: var(--slidev-theme-primary, #7229E8) !important;
-  font-size: 1.15em !important; /* Custom large bullet size */
-}
-
-.slidev-layout ul ul {
-  list-style-type: circle !important;
-  margin-top: 0.15rem;
-  margin-bottom: 0.15rem;
-  padding-left: 1.1rem !important;
-}
-
-.slidev-layout ul ul li::marker {
-  color: var(--slidev-theme-primary-light, #C4B5FD) !important;
-  font-size: 1.05em !important;
-}
-
-.slidev-layout ul ul ul {
-  list-style-type: square !important;
-  padding-left: 1.1rem !important;
-}
-
-.slidev-layout ul ul ul li::marker {
-  color: var(--slidev-theme-primary-dark, #6D28D9) !important;
-  font-size: 0.9em !important;
-}
-
-/* Ordered lists styling */
 .slidev-layout ol {
-  list-style-type: decimal !important;
-  padding-left: 1.3rem !important;
-  margin-top: 0.25rem;
-  margin-bottom: 0.25rem;
+  padding-inline-start: 1.8em !important;
 }
 
-.slidev-layout ol li {
-  margin-bottom: 0.2rem;
-  line-height: 1.45;
+.slidev-layout ol {
+  list-style-type: decimal;
+}
+
+.slidev-layout :is(ul, ol) > li {
+  margin: 0;
+  padding-inline-start: 0.15em;
+  line-height: 1.48;
   color: var(--ket-t2);
 }
 
-.slidev-layout ol li::marker {
-  color: var(--slidev-theme-primary, #7229E8) !important;
-  font-weight: 600;
+.slidev-layout :is(ul, ol) > li + li {
+  margin-block-start: 0.22em;
+}
+
+.slidev-layout :is(ul, ol) > li::marker {
+  color: var(--ket-ac);
+  font-size: 1em;
+  font-weight: 400;
+}
+
+.slidev-layout ol > li::marker {
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Keep loose Markdown lists (li > p) as compact as tight lists, while
+   retaining paragraph separation within a single item. */
+.slidev-layout :is(ul, ol) > li > p {
+  margin-block: 0;
+  line-height: inherit;
+}
+
+.slidev-layout :is(ul, ol) > li > p + p {
+  margin-block-start: 0.4em;
+}
+
+.slidev-layout :is(ul, ol) :is(ul, ol) {
+  margin-block: 0.2em 0;
+}
+
+.slidev-layout :is(ul, ol) ul {
+  list-style-type: circle;
+}
+
+.slidev-layout :is(ul, ol) ol:not([type]) {
+  list-style-type: lower-alpha;
+}
+
+.slidev-layout :is(ul, ol) :is(ul, ol) ul {
+  list-style-type: square;
+}
+
+.slidev-layout :is(ul, ol) :is(ul, ol) ol:not([type]) {
+  list-style-type: lower-roman;
+}
+
+.slidev-layout :is(ul, ol) :is(ul, ol) > li::marker {
+  color: var(--ket-marker-nested, var(--ket-t3));
+}
+
+.slidev-layout :is(ul, ol) :is(ul, ol) :is(ul, ol) > li::marker {
+  color: var(--ket-marker-nested-2, var(--ket-t3));
 }
 
 /* Body paragraph tier */
@@ -836,7 +1054,7 @@
   margin-top: 1px;
   border-radius: 50%;
   background: var(--ket-ac-m);
-  color: #E6E3EB;
+  color: var(--ket-on-accent, #E6E3EB);
   font-size: 11.5px;
   font-weight: 700;
 }
@@ -944,18 +1162,21 @@
 /* ═══════════════════════════════════════════════
    Emphasis utilities — keyword coloring, lead line, claim.
    Absorbed from the auto deck (project/auto/styles/index.css).
+   Colors are palette tokens (--ket-kw-*) defined per mode + dark block,
+   so mono keeps the restrained near-neutral labels while vivid restores
+   the saturated quantum tones.
 ═══════════════════════════════════════════════ */
-.slidev-layout .kw-danger { color: #BE123C; font-weight: 700; }
-.slidev-layout .kw-gold { color: #B45309; font-weight: 700; }
-.slidev-layout .kw-blue { color: #1D4ED8; font-weight: 700; }
-.slidev-layout .kw-green { color: #047857; font-weight: 700; }
-.slidev-layout .kw-violet { color: #7229E8; font-weight: 700; }
+.slidev-layout .kw-danger { color: var(--ket-kw-danger, #BE123C); font-weight: 700; }
+.slidev-layout .kw-gold { color: var(--ket-kw-gold, #B45309); font-weight: 700; }
+.slidev-layout .kw-blue { color: var(--ket-kw-blue, #1D4ED8); font-weight: 700; }
+.slidev-layout .kw-green { color: var(--ket-kw-green, #047857); font-weight: 700; }
+.slidev-layout .kw-violet { color: var(--ket-kw-violet, #7229E8); font-weight: 700; }
 
-.dark .slidev-layout .kw-danger { color: #FB7185; }
-.dark .slidev-layout .kw-gold { color: #FBBF24; }
-.dark .slidev-layout .kw-blue { color: #60A5FA; }
-.dark .slidev-layout .kw-green { color: #34D399; }
-.dark .slidev-layout .kw-violet { color: #A78BFA; }
+.dark .slidev-layout .kw-danger { color: var(--ket-kw-danger, #FB7185); }
+.dark .slidev-layout .kw-gold { color: var(--ket-kw-gold, #FBBF24); }
+.dark .slidev-layout .kw-blue { color: var(--ket-kw-blue, #60A5FA); }
+.dark .slidev-layout .kw-green { color: var(--ket-kw-green, #34D399); }
+.dark .slidev-layout .kw-violet { color: var(--ket-kw-violet, #A78BFA); }
 
 /* Lead line: one absolutely-stacked line of text that a later click
    swaps for the next (pair with v-click on each <p>). */

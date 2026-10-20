@@ -25,7 +25,7 @@
 
 主题已有的编号约定（这是本次方案的基础，必须与之保持一致）：
 
-- [Bra.vue](../components/Bra.vue) — 定理/定义区块，`<Bra type="theorem" :number="1">`，编号**手写**。
+- [Pad.vue](../components/Pad.vue) — 定理/定义区块，`<Pad type="theorem" :number="1">`，编号**手写**。
 - [Figure.vue](../components/Figure.vue) — 图片，`<Figure src="..." :number="1">`，渲染 `Fig. 1`，编号**手写**。
 - [example.md](../example.md) — 主题回归基线，每个新能力都要在此演示。
 
@@ -43,7 +43,7 @@
 
 | 方案 | 做法 | 优点 | 缺点 |
 | --- | --- | --- | --- |
-| **A1** `<Cite>` 组件 | `<Cite :n="1"/>` → 渲染上标式 `[1]`，可选 `href` 跳末页 | 与 Bra/Figure 手写编号哲学一致；dev/build/PDF 均稳定 | 插入新文献需手动重排（幻灯片场景可忽略） |
+| **A1** `<Cite>` 组件 | `<Cite :n="1"/>` → 渲染上标式 `[1]`，可选 `href` 跳末页 | 与 Pad/Figure 手写编号哲学一致；dev/build/PDF 均稳定 | 插入新文献需手动重排（幻灯片场景可忽略） |
 | A2 全局自动编号 | `useCitations()` 组合式 + `<Cite key="nielsen"/>`，按首次出现排序 | DRY、无需手写号 | ⚠️ Slidev 逐页编译 + 懒渲染，末页 refs 渲染时其它页未必已收集，SSG/导出时顺序不稳 |
 | A3 `markdown-it-footnote` | `[^nielsen]` 语法，插件自动编号 | 语法简洁 | ⚠️ 脚注渲染在**每页底部**，不是「末页文献」；跨页编号每页重置；语义错位 |
 
@@ -154,7 +154,7 @@
 ### 4.4 example.md 演示（回归基线）
 
 计划在 §2 方法比较表附近增加：
-- 一页「正文引用 + 公式/图片交叉引用」综合演示：Bra 定理内用 `[1]` 引用、行内 `Eq. (1)` 指向同页 `\tag{1}` 公式、`Fig. 1` 指向已有 Bloch 球图。
+- 一页「正文引用 + 公式/图片交叉引用」综合演示：Pad 定理内用 `[1]` 引用、行内 `Eq. (1)` 指向同页 `\tag{1}` 公式、`Fig. 1` 指向已有 Bloch 球图。
 - 末页（`thanks` 之前）增加 `layout: references` 的参考文献页，列出 2–3 条示例文献，编号与正文 `[1]` 对应。
 
 ### 4.5 文档更新

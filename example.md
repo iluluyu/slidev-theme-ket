@@ -9,7 +9,7 @@ gradient: true
 footerTitle: Quantum Entanglement and Information Processing
 info: |
   ## Ket 主题特性展示
-  Quantum-style cover · section · Bra theorem/proof · table · code · footer progress
+  Quantum-style cover · section · Pad theorem/proof · table · code · footer progress
 ---
 
 # slidev-theme-ket
@@ -38,9 +38,31 @@ linkSublabel: Simons Institute talk
 ---
 
 <!-- cover-cosmic：Three.js 黑洞（引力透镜/吸积盘/差动粒子流）+ 左侧文字栈 + 毛玻璃链接卡。
-     可调 prop：innerColor、outerColor、focus（left/center）、speed、stars、quality；
+     可调 prop：innerColor、outerColor、focus（left/center）、speed、stars、quality、motion、maxFps；
+     默认 motion:auto 遵循系统偏好；总览/打印/下一页预览静止，仅当前可见封面持续渲染。
      link/linkLabel/linkSublabel 渲染玻璃卡（YouTube 链接自动换播放圈标）。
      标题、作者、机构、日期由 headmatter 提供（标题可用本页 heading 覆盖），不要在正文里再写 # 标题。 -->
+
+---
+layout: cover-cosmic
+heading: Motion Without System Effects
+motion: always
+maxFps: 24
+quality: low
+---
+
+<!-- motion:always 是明确的播放选择；即使 Windows 动态效果关闭，黑洞仍旋转。
+     quality:low + maxFps:24 限制渲染预算；软件 WebGL 自动进一步降至 12 FPS。
+     离开此页、隐藏标签页、进入总览，都取消 RAF 与计时器。 -->
+
+---
+layout: cover-cosmic
+heading: A Still Cosmic Cover
+motion: never
+quality: low
+---
+
+<!-- motion:never 保留静态首帧，无持续循环；2D 回退同样遵守此设置。 -->
 
 ---
 
@@ -86,49 +108,49 @@ Quantum states, density matrices, and the von Neumann entropy as the central qua
 
 # §1 · Mathematical Framework · *Theorem Blocks*
 
-<Bra type="theorem" name="No-Cloning" :number="1">
+<Pad type="theorem" name="No-Cloning" :number="1">
 
 There is no unitary $U$ such that $U(|\psi\rangle|0\rangle)=|\psi\rangle|\psi\rangle$ holds for all non-orthogonal states $|\psi\rangle$. Quantum information cannot be duplicated.
 
-</Bra>
+</Pad>
 
-<Bra type="definition" name="Von Neumann Entropy" :number="2">
+<Pad type="definition" name="Von Neumann Entropy" :number="2">
 
 For a quantum state $\rho$, the von Neumann entropy is
 $S(\rho)=-\operatorname{Tr}(\rho\log_2\rho)=-\sum_i\lambda_i\log_2\lambda_i$.
 
-</Bra>
+</Pad>
 
-<Bra type="proof">
+<Pad type="proof">
 
 由 $K_i^\dagger K_i$ 的半正定性即可得出完备性。Completeness follows from $\sum_i K_i^\dagger K_i=\mathbf{1}$. $\square$
 
-</Bra>
+</Pad>
 
 ---
 
 # §1 · Main Results · *Proof Style*
 
-<Bra type="theorem" name="Subadditivity" :number="3">
+<Pad type="theorem" name="Subadditivity" :number="3">
 
 For a bipartite quantum state $\rho_{AB}$,
 $$
 S(\rho_{AB}) \le S(\rho_A)+S(\rho_B).
 $$
 
-</Bra>
+</Pad>
 
-<Bra type="proof">
+<Pad type="proof">
 
 The result follows by monotonicity of relative entropy under the partial trace. Equivalently, applying strong subadditivity to a purification of $\rho_{AB}$ yields the desired inequality. $\square$
 
-</Bra>
+</Pad>
 
-<Bra type="corollary" name="Entanglement Entropy">
+<Pad type="corollary" name="Entanglement Entropy">
 
 For a pure bipartite state $|\psi_{AB}\rangle$, $S(\rho_{AB})=0$ and $S(\rho_A)=S(\rho_B)$.
 
-</Bra>
+</Pad>
 
 ---
 
@@ -136,67 +158,85 @@ For a pure bipartite state $|\psi_{AB}\rangle$, $S(\rho_{AB})=0$ and $S(\rho_A)=
 
 <div grid="~ cols-2 gap-3">
 
-<Bra title="Theorem" tone="default">
+<Pad title="Theorem" tone="default">
 
 主定理、核心结果，紫色高亮。
 
-</Bra>
+</Pad>
 
-<Bra title="Definition" tone="primary">
+<Pad title="Definition" tone="primary">
 
 定义、符号约定，蓝色强调。
 
-</Bra>
+</Pad>
 
-<Bra title="Lemma" tone="success">
+<Pad title="Lemma" tone="success">
 
 辅助性结论，绿色提示正向进展。
 
-</Bra>
+</Pad>
 
-<Bra title="Remark" tone="warning">
+<Pad title="Remark" tone="warning">
 
 补充说明和注意事项，琥珀色。
 
-</Bra>
+</Pad>
 
-<Bra title="Corollary" tone="danger">
+<Pad title="Corollary" tone="danger">
 
 重要衍生结果，玫红色。
 
-</Bra>
+</Pad>
 
-<Bra title="Proof" tone="muted">
+<Pad title="Proof" tone="muted">
 
 证明过程和次要支撑信息，灰色。
 
-</Bra>
+</Pad>
 
 </div>
 
 ---
 
+# Template · Design System · *Color Palette*
+
+The deck-wide palette switch lives in the headmatter — `mono` is the default and this example runs it:
+
+```yaml
+---
+themeConfig:
+  palette: mono    # default — neutral academic scheme
+  # palette: vivid # original quantum-violet scheme
+---
+```
+
+`mono` spends one indigo accent `#5856D6` on neutral surfaces, with muted traffic-light dots and restrained semantic fills. `vivid` restores the violet ramp `#7229E8`, the rainbow cover gradient and the saturated keyword tones. Layout, geometry and typography stay identical — only colors switch.
+
+Current keyword tones: <span class="kw-danger">danger</span> · <span class="kw-gold">gold</span> · <span class="kw-blue">blue</span> · <span class="kw-green">green</span> · <span class="kw-violet">violet</span> — and badges: <span class="badge badge-v">accent</span> <span class="badge badge-g">success</span> <span class="badge badge-b">primary</span>.
+
+---
+
 # Template · Design System · *Compact Mode*
 
-<Bra type="theorem" compact>Theorem has no cloning.</Bra>
-<Bra type="definition" compact>Definition — von Neumann entropy.</Bra>
-<Bra type="lemma" compact>Lemma — subadditivity holds.</Bra>
-<Bra type="remark" compact>Remark — compact for notes.</Bra>
+<Pad type="theorem" compact>Theorem has no cloning.</Pad>
+<Pad type="definition" compact>Definition — von Neumann entropy.</Pad>
+<Pad type="lemma" compact>Lemma — subadditivity holds.</Pad>
+<Pad type="remark" compact>Remark — compact for notes.</Pad>
 
-<Bra type="theorem" name="Named" compact :number="7">Compact with name and number.</Bra>
-<Bra type="proof" compact>
+<Pad type="theorem" name="Named" compact :number="7">Compact with name and number.</Pad>
+<Pad type="proof" compact>
 
 Done via induction. $\square$
-</Bra>
+</Pad>
 
 <!-- Titles render inline markdown too — math ($...$), **bold**, *italic*, `code` —
      not just plain text. Useful for headers like "all outcomes in $H^\perp$". -->
-<Bra title="Hiding property → all outcomes in $H^\perp$" tone="warning" compact>
+<Pad title="Hiding property → all outcomes in $H^\perp$" tone="warning" compact>
 Every measurement outcome falls in $H^{\perp}$.
-</Bra>
-<Bra title="**Recall:** the *symmetric* cloner needs $t = \Theta(2^n)$ copies" compact>
+</Pad>
+<Pad title="**Recall:** the *symmetric* cloner needs $t = \Theta(2^n)$ copies" compact>
 Werner's optimal cloner projects onto the symmetric subspace.
-</Bra>
+</Pad>
 
 ---
 
@@ -212,11 +252,11 @@ Werner's optimal cloner projects onto the symmetric subspace.
 | **Entangled measurement** | $O(d)$ | Auxiliary entanglement | Information-theoretic optimal rate |
 | **Lower bound** | $\Omega(d)$ | Theoretical limit | Cannot be asymptotically improved |
 
-<Bra type="remark">
+<Pad type="remark">
 
 Here $d=2^n$ is the Hilbert-space dimension of an $n$-qubit system. The entangled method reaches the information-theoretic lower bound.
 
-</Bra>
+</Pad>
 
 ---
 
@@ -311,17 +351,17 @@ cols: 1fr 1fr
 
 ::left::
 
-<Bra type="theorem" name="Ring" :number="1">
+<Pad type="theorem" name="Ring" :number="1">
 
-Filled Bra — tinted background defines the region; no outline ring, only a soft no-spread shadow.
+Filled Pad — tinted background defines the region; no outline ring, only a soft no-spread shadow.
 
-</Bra>
+</Pad>
 
-<Bra type="theorem" border>
+<Pad type="theorem" border>
 
-Outlined Bra — a real colored border traces the squircle evenly.
+Outlined Pad — a real colored border traces the squircle evenly.
 
-</Bra>
+</Pad>
 
 <div class="steps">
   <div class="step"><div class="step-n">1</div><div class="step-body">
@@ -342,7 +382,7 @@ Inline `code` and <kbd>Tab</kbd> use the small 14px radius.
 
 | Surface | radius |
 | --- | --- |
-| Code · Table · Bra | 22px |
+| Code · Table · Pad | 22px |
 | Inline code · kbd | 14px |
 
 ---
@@ -360,12 +400,13 @@ Quantum teleportation, quantum key distribution, and entanglement-assisted proto
 
 ::decoration::
 <svg width="380" height="260" viewBox="0 0 380 260" fill="none" aria-hidden="true">
-  <path d="M42 170 C96 70, 164 70, 218 170 S340 270, 360 128" stroke="#7229E8" stroke-width="3" opacity=".95"/>
-  <circle cx="42" cy="170" r="10" fill="#8B3CF7"/>
-  <circle cx="218" cy="170" r="10" fill="#8B3CF7"/>
-  <circle cx="360" cy="128" r="10" fill="#E11D48"/>
-  <path d="M82 204 H298" stroke="#C4B5FD" stroke-width="2" stroke-dasharray="7 7"/>
-  <circle cx="190" cy="204" r="46" stroke="#C4B5FD" stroke-width="2"/>
+  <!-- 颜色走色板 token（SVG 属性位不能写 var()，改用 style）；mono 单强调色，vivid 回紫+玫红 -->
+  <path d="M42 170 C96 70, 164 70, 218 170 S340 270, 360 128" style="stroke: var(--ket-deco-accent, #7229E8)" stroke-width="3" opacity=".95"/>
+  <circle cx="42" cy="170" r="10" style="fill: var(--ket-ac-m, #8B3CF7)"/>
+  <circle cx="218" cy="170" r="10" style="fill: var(--ket-ac-m, #8B3CF7)"/>
+  <circle cx="360" cy="128" r="10" style="fill: var(--ket-deco-accent-alt, #E11D48)"/>
+  <path d="M82 204 H298" style="stroke: var(--ket-ac-bd, #C4B5FD)" stroke-width="2" stroke-dasharray="7 7"/>
+  <circle cx="190" cy="204" r="46" style="stroke: var(--ket-ac-bd, #C4B5FD)" stroke-width="2"/>
 </svg>
 ::
 
@@ -489,6 +530,29 @@ class: centered
   ]"
   title-size="2.15rem"
 />
+
+---
+layout: two-cols-header
+---
+
+# Lists · *Quiet Hierarchy*
+
+::left::
+
+- Main evidence stays readable.
+  - Secondary evidence uses a quieter marker.
+    - Supporting detail keeps the same text size.
+- A longer item wraps beneath its own text rather than beneath the bullet, preserving a clean hanging alignment.
+
+::right::
+
+1. Prepare the argument.
+   1. Check the assumptions.
+      1. Verify the conclusion.
+
+2. Communicate the result.
+
+   A second paragraph keeps its spacing within the same item.
 
 ---
 layout: thanks

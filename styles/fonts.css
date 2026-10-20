@@ -125,7 +125,7 @@
   font-weight: 400;
 }
 
-/* 正文 / 列表字号 —— 与 Bra.vue 的 .bra-content 共享 --ket-body-size，
+/* 正文 / 列表字号 —— 与 Pad.vue 的 .pad-content 共享 --ket-body-size，
    使定理块正文与周围段落以同一字号呈现，阅读体验一致。
    表格单元格（td/th）另有专门字号，不在此列。 */
 .slidev-layout p,

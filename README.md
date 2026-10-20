@@ -9,13 +9,13 @@ definitions, and math.
 
 ## Highlights
 
-- `Bra` theorem / definition / note blocks with semantic tones
+- `Pad` theorem / definition / note blocks with semantic tones
 - Five cover variants: `cover`, `cover-deco`, cosmic `cover-cosmic` (Three.js black hole), centered `PaperCover`, deco `PaperCover`
 - `Figure` component for referenced images with Markdown captions
 - `XCard` / `XFan` — tweet-style evidence cards that fan out with click reveals
 - Emphasis utilities: `kw-*` keyword tones, `claim`, `lead-slot` (dark-mode ready)
 - Layouts for every talk beat: cover, section, two-column, thanks
-- Quantum dot-grid background that recolors in dark mode
+- Two switchable palettes — calm `mono` (default) and the original `vivid` look — via `themeConfig.palette`, both dark-mode ready
 - Geist typography, self-hosted (no runtime font requests)
 
 ## Preview locally
@@ -43,35 +43,70 @@ theme: ../../slidev-theme-ket
 ---
 ```
 
+### Palette
+
+Two color palettes ship in the theme, switched globally from deck headmatter:
+
+```yaml
+---
+theme: ../../slidev-theme-ket
+themeConfig:
+  palette: mono    # default — may be omitted; `vivid` restores the original colors
+---
+```
+
+- `mono` (default) — neutral gray surfaces with a single indigo focus color;
+  merged from the retired `slidev-theme-ket-mono` variant; its separate
+  submodule has been removed.
+- `vivid` — the original ket look: parchment ground, deep indigo text,
+  quantum-violet accent.
+
+The switch is deck-global (no per-slide palette) and recolors tokens only —
+layout sizes and the component API are identical; light and dark mode are
+both supported.
+
+Migrating older decks:
+
+- On `slidev-theme-ket-mono`: point `theme:` at `../../slidev-theme-ket` —
+  the mono look is the default now.
+- Wanting the previous violet look: set `palette: vivid`.
+- Still using `<Bra …>` tags: rename them to `<Pad …>` — the theorem block
+  component is `Pad` only.
+
 ## Design system
 
-Ket pairs a quantum dot-grid ground with deep indigo text and a single violet
-accent. Semantic color appears only when it carries meaning — each `Bra` tone
-maps to a role.
+Ket spends color deliberately: neutral surfaces carry the hierarchy, one
+focus color marks emphasis, and semantic color appears only when it carries
+meaning — each `Pad` tone maps to a role. The default `mono` palette:
 
 ![Theorem blocks](./assets/components.png)
 
-| Token | Value | Role |
+| Token | mono (default) | Role |
 | --- | --- | --- |
-| `--ket-ac` | `#7229E8` | Violet accent |
-| `--ket-t1` | `#1B1840` | Primary text |
-| `--ket-t2` | `#46426E` | Body text |
-| `--ket-t3` | `#8E8BAD` | Captions |
+| `--ket-ac` | `#5856D6` | Indigo focus accent |
+| `--ket-t1` | `#1D1D1F` | Primary text |
+| `--ket-t2` | `#424245` | Body text |
+| `--ket-t3` | `#6E6E73` | Captions |
 
-Full token tables, dot-grid tuning, and global chrome: [docs/design-tokens.md](./docs/design-tokens.md).
+`palette: vivid` restores the original violet ramp (`--ket-ac: #7229E8`,
+`--ket-t1: #1B1840`, …).
+
+Full tables for both palettes, both modes, and the global chrome:
+[docs/design-tokens.md](./docs/design-tokens.md).
 
 ## Components
 
-### `Bra`
+### `Pad`
 
-Academic theorem and note block.
+Academic theorem and note block (formerly `Bra`; older decks must rename
+their tags).
 
 ```vue
-<Bra type="theorem" name="No-Cloning" :number="1">
+<Pad type="theorem" name="No-Cloning" :number="1">
 
 There is no unitary $U$ that clones every state $|\psi\rangle$.
 
-</Bra>
+</Pad>
 ```
 
 Common props:

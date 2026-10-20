@@ -27,6 +27,10 @@ const props = withDefaults(defineProps<Props>(), {
   customTitle: '',
   name: '',
   number: undefined,
+  // Declaring undefined keeps Vue's Boolean-cast default (false) from
+  // shadowing the legacy `inline` prop in `compact ?? inline ?? false`,
+  // while an explicit :compact="false" still wins.
+  compact: undefined,
   italic: false,
   tone: '',
   color: '',
@@ -92,38 +96,38 @@ const toneClass = computed(() => {
   }
   const tone = (props.tone || typeTone[props.type.toLowerCase()] || 'default').toLowerCase()
   const knownTones = ['default', 'primary', 'danger', 'warning', 'success', 'muted']
-  return knownTones.includes(tone) ? `bra-tone-${tone}` : 'bra-tone-default'
+  return knownTones.includes(tone) ? `pad-tone-${tone}` : 'pad-tone-default'
 })
 
 const blockStyle = computed(() => ({
-  '--bra-color': props.color || undefined,
-  '--bra-bg-color': props.bgColor || undefined,
-  '--bra-title-color': props.titleColor || undefined,
-  '--bra-border-color': props.borderColor || props.bgColor || undefined
+  '--pad-color': props.color || undefined,
+  '--pad-bg-color': props.bgColor || undefined,
+  '--pad-title-color': props.titleColor || undefined,
+  '--pad-border-color': props.borderColor || props.bgColor || undefined
 }))
 </script>
 
 <template>
   <div
-    class="bra-block"
+    class="pad-block"
     :class="[
       toneClass,
       {
-        'bra-compact': effectiveCompact,
-        'bra-inline': effectiveCompact,
-        'bra-border': effectiveBorder,
-        'bra-italic': italic
+        'pad-compact': effectiveCompact,
+        'pad-inline': effectiveCompact,
+        'pad-border': effectiveBorder,
+        'pad-italic': italic
       }
     ]"
     :style="blockStyle"
   >
-    <span v-if="showHeader" class="bra-header">
-      <span v-if="displayTitle" class="bra-type" v-html="renderedTitle" />
-      <span v-if="number !== undefined" class="bra-number">{{ number }}</span>
-      <span v-if="name" class="bra-name">({{ name }})</span>
-      <span class="bra-dot">.</span>
+    <span v-if="showHeader" class="pad-header">
+      <span v-if="displayTitle" class="pad-type" v-html="renderedTitle" />
+      <span v-if="number !== undefined" class="pad-number">{{ number }}</span>
+      <span v-if="name" class="pad-name">({{ name }})</span>
+      <span class="pad-dot">.</span>
     </span>
-    <div class="bra-content">
+    <div class="pad-content">
       <slot />
     </div>
   </div>
@@ -131,16 +135,16 @@ const blockStyle = computed(() => ({
 
 <style scoped>
 /* ═══════════════════════════════════════════════
-   Bra — academic theorem / definition block.
+   Pad — academic theorem / definition block.
 
    Default style matches the Quantum template: filled
    background tint, no side border, a hairline ring
    shadow for depth. Set `border` to switch to the
    outlined variant.
 ═══════════════════════════════════════════════ */
-.bra-block {
-  background-color: var(--bra-bg-color);
-  color: var(--bra-color, var(--ket-t1, inherit));
+.pad-block {
+  background-color: var(--pad-bg-color);
+  color: var(--pad-color, var(--ket-t1, inherit));
   border-radius: var(--ket-radius-md, 21px);
   corner-shape: var(--ket-corner-shape, squircle);
   /* Generous but layout-friendly spacing: ~11px external margin gives stacked
@@ -149,61 +153,61 @@ const blockStyle = computed(() => ({
      interior airy without bloating short blocks. */
   padding: 16px 20px;
   margin: 0.7rem 0;
-  /* 填充型 Bra：用背景色完成分区，仅保留无 spread 的柔和投影。
+  /* 填充型 Pad：用背景色完成分区，仅保留无 spread 的柔和投影。
      不再用 0 0 0 1.5px 描边环 —— 超椭圆角部会让 spread ring 粗细不均。
      --ket-surface-shadow 在 squircle.css :root / .dark 中按明暗分别定义。 */
   box-shadow: var(--ket-surface-shadow, none);
 }
 
-.dark .bra-block {
+.dark .pad-block {
   box-shadow: var(--ket-surface-shadow, none);
 }
 
 /* ── Semantic tones (quantum 6-color system) ── */
-.bra-tone-default {
-  --bra-bg-color: var(--ket-default-bg, #EDEAFF);
-  --bra-title-color: var(--ket-default-lbl, #6D28D9);
-  --bra-border-color: var(--ket-default-lbl, #6D28D9);
+.pad-tone-default {
+  --pad-bg-color: var(--ket-default-bg, #EDEAFF);
+  --pad-title-color: var(--ket-default-lbl, #6D28D9);
+  --pad-border-color: var(--ket-default-lbl, #6D28D9);
 }
 
-.bra-tone-primary {
-  --bra-bg-color: var(--ket-primary-bg, #DBEAFE);
-  --bra-title-color: var(--ket-primary-lbl, #1D4ED8);
-  --bra-border-color: var(--ket-primary-lbl, #1D4ED8);
+.pad-tone-primary {
+  --pad-bg-color: var(--ket-primary-bg, #DBEAFE);
+  --pad-title-color: var(--ket-primary-lbl, #1D4ED8);
+  --pad-border-color: var(--ket-primary-lbl, #1D4ED8);
 }
 
-.bra-tone-danger {
-  --bra-bg-color: var(--ket-danger-bg, #FFE4E6);
-  --bra-title-color: var(--ket-danger-lbl, #BE123C);
-  --bra-border-color: var(--ket-danger-lbl, #BE123C);
+.pad-tone-danger {
+  --pad-bg-color: var(--ket-danger-bg, #FFE4E6);
+  --pad-title-color: var(--ket-danger-lbl, #BE123C);
+  --pad-border-color: var(--ket-danger-lbl, #BE123C);
 }
 
-.bra-tone-warning {
-  --bra-bg-color: var(--ket-warning-bg, #FEF3C7);
-  --bra-title-color: var(--ket-warning-lbl, #B45309);
-  --bra-border-color: var(--ket-warning-lbl, #B45309);
+.pad-tone-warning {
+  --pad-bg-color: var(--ket-warning-bg, #FEF3C7);
+  --pad-title-color: var(--ket-warning-lbl, #B45309);
+  --pad-border-color: var(--ket-warning-lbl, #B45309);
 }
 
-.bra-tone-success {
-  --bra-bg-color: var(--ket-success-bg, #D1FAE5);
-  --bra-title-color: var(--ket-success-lbl, #047857);
-  --bra-border-color: var(--ket-success-lbl, #047857);
+.pad-tone-success {
+  --pad-bg-color: var(--ket-success-bg, #D1FAE5);
+  --pad-title-color: var(--ket-success-lbl, #047857);
+  --pad-border-color: var(--ket-success-lbl, #047857);
 }
 
-.bra-tone-muted {
-  --bra-bg-color: var(--ket-muted-bg, #F1F2F7);
-  --bra-title-color: var(--ket-muted-lbl, #64748B);
-  --bra-border-color: var(--ket-muted-lbl, #64748B);
+.pad-tone-muted {
+  --pad-bg-color: var(--ket-muted-bg, #F1F2F7);
+  --pad-title-color: var(--ket-muted-lbl, #64748B);
+  --pad-border-color: var(--ket-muted-lbl, #64748B);
 }
 
 /* Outlined variant — transparent fill, colored ring. */
-.bra-block.bra-border {
+.pad-block.pad-border {
   background-color: transparent;
-  border: 1.5px solid var(--bra-border-color);
+  border: 1.5px solid var(--pad-border-color);
   box-shadow: none;
 }
 
-.bra-header {
+.pad-header {
   display: block;
   font-weight: 700;
   font-size: 0.94rem;
@@ -211,8 +215,8 @@ const blockStyle = computed(() => ({
   margin-bottom: 10px;
 }
 
-.bra-compact,
-.bra-inline {
+.pad-compact,
+.pad-inline {
   /* Keep the opt-in compact variant genuinely tight — override the roomy
      defaults above so inline theorem notes stay space-efficient.
      ~0.4em vertical margin ≈ half a character, matching body line-height. */
@@ -220,15 +224,15 @@ const blockStyle = computed(() => ({
   margin: 0.4em 0;
 }
 
-.bra-compact .bra-header,
-.bra-inline .bra-header {
+.pad-compact .pad-header,
+.pad-inline .pad-header {
   display: inline;
   margin-bottom: 0;
   margin-right: 0.3em;
 }
 
-.bra-compact .bra-content,
-.bra-inline .bra-content {
+.pad-compact .pad-content,
+.pad-inline .pad-content {
   display: inline;
 }
 
@@ -236,34 +240,34 @@ const blockStyle = computed(() => ({
    to display inline so the header and body text stay on one line.
    The `>` combinator inside `:deep()` can trip up older Vue scoped-style
    compilers, so we use a plain descendant selector here. */
-.bra-compact .bra-content :deep(p),
-.bra-inline .bra-content :deep(p) {
+.pad-compact .pad-content :deep(p),
+.pad-inline .pad-content :deep(p) {
   display: inline;
   margin: 0;
 }
 
-.bra-type {
-  color: var(--bra-title-color);
+.pad-type {
+  color: var(--pad-title-color);
 }
 
-.bra-dot {
-  color: var(--bra-title-color);
+.pad-dot {
+  color: var(--pad-title-color);
 }
 
-.bra-number {
-  color: var(--bra-title-color);
+.pad-number {
+  color: var(--pad-title-color);
   margin-left: 4px;
 }
 
-.bra-name {
-  color: var(--bra-title-color);
+.pad-name {
+  color: var(--pad-title-color);
   opacity: 0.8;
   font-weight: 400;
   font-style: italic;
   margin-left: 4px;
 }
 
-.bra-content {
+.pad-content {
   font-weight: 400;
   color: inherit;
   /* Shares --ket-body-size with slide body text (p, li) so theorem-block
@@ -272,27 +276,27 @@ const blockStyle = computed(() => ({
   line-height: 1.72;
 }
 
-.bra-block.bra-italic .bra-content {
+.pad-block.pad-italic .pad-content {
   font-style: italic;
 }
 
-.bra-content :deep(p) {
+.pad-content :deep(p) {
   margin: 0.3rem 0;
 }
 
 /* Emphasized terms (Markdown **bold** / __bold__) pick up the tone's label
    color so key terms echo the header label and read as highlights rather
-   than plain body text. `--bra-title-color` is defined per tone above and
+   than plain body text. `--pad-title-color` is defined per tone above and
    also honored when the `titleColor` prop is set, so every block resolves
-   to a real accent color. Specificity (.bra-content + scope attr + element)
+   to a real accent color. Specificity (.pad-content + scope attr + element)
    wins over the global `.slidev-layout strong` color; font-weight stays at
    the shared 600 from fonts.css. */
-.bra-content :deep(strong),
-.bra-content :deep(b) {
-  color: var(--bra-title-color);
+.pad-content :deep(strong),
+.pad-content :deep(b) {
+  color: var(--pad-title-color);
 }
 
-.bra-content :deep(.katex-display) {
+.pad-content :deep(.katex-display) {
   margin: 6px 0;
 }
 </style>

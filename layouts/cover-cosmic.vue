@@ -8,6 +8,8 @@
       :interactive="interactive"
       :stars="stars"
       :quality="quality"
+      :motion="motion"
+      :max-fps="maxFps"
     />
 
     <div class="cc-content">
@@ -81,6 +83,8 @@ interface Props {
   interactive?: boolean
   stars?: boolean
   quality?: 'auto' | 'low' | 'high'
+  motion?: 'auto' | 'always' | 'never'
+  maxFps?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -98,7 +102,9 @@ const props = withDefaults(defineProps<Props>(), {
   speed: 1,
   interactive: false,
   stars: true,
-  quality: 'auto'
+  quality: 'auto',
+  motion: 'auto',
+  maxFps: 30,
 })
 
 // Page frontmatter `heading` wins; then headmatter title.
@@ -261,7 +267,7 @@ const linkIsYouTube = computed(() => /youtu\.?be/i.test(props.link))
   text-shadow: 0 2px 8px rgba(2, 1, 8, 0.72);
 }
 
-/* Glass link card — frosted squircle matching the Bra radius. */
+/* Glass link card — frosted squircle matching the Pad radius. */
 .cc-link-card {
   display: flex;
   align-items: center;

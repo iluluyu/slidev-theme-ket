@@ -3,7 +3,7 @@
 Detailed reference for the components shipped with `slidev-theme-ket`. For a
 quick overview, see the [README](../README.md#components).
 
-## `Bra`
+## `Pad`
 
 Theorem / definition / note block for academic slides. The default style is a
 **filled semantic background with a hairline ring shadow** (no side border),
@@ -12,17 +12,17 @@ matching the Quantum template. Use `:border="true"` for the outlined variant.
 ### Basic usage
 
 ```vue
-<Bra title="No-Cloning Theorem">
+<Pad title="No-Cloning Theorem">
 There is no one-fits-all cloning unitary $U$.
-</Bra>
+</Pad>
 ```
 
 ### Preset labels (`type`)
 
 ```vue
-<Bra type="definition" name="Sample Amplification" :number="1">
+<Pad type="definition" name="Sample Amplification" :number="1">
 Content
-</Bra>
+</Pad>
 ```
 
 `type` renders a preset mathematical label. Available values: `theorem`,
@@ -32,13 +32,13 @@ Content
 ### Semantic tones (`tone`)
 
 ```vue
-<Bra title="Task" tone="primary">
+<Pad title="Task" tone="primary">
 Main objective
-</Bra>
+</Pad>
 
-<Bra title="Warning" tone="danger">
+<Pad title="Warning" tone="danger">
 Important caveat
-</Bra>
+</Pad>
 ```
 
 Available tones: `default`, `primary`, `danger`, `warning`, `success`, `muted`.
@@ -73,8 +73,10 @@ automatically:
 
 ### Compatibility
 
-Old props like `customTitle` and `inline` still work, so existing slides do not
-need to be migrated immediately.
+The component is `Pad` only: rename old `<Bra>` tags to `<Pad>`; no old-name
+entry or alias is provided. Props such as `customTitle` and `inline` are
+unchanged. `compact` takes precedence when explicitly set (including `false`);
+when omitted, `inline` can select the compact variant.
 
 ---
 
@@ -144,6 +146,21 @@ Custom decoration via slot:
 ```
 
 ---
+
+## `CosmicBackground`
+
+Black-hole background used by `cover-cosmic`; see [layout options](layouts.md#cover-cosmic).
+
+```vue
+<CosmicBackground motion="always" quality="low" :max-fps="24" />
+```
+
+Props: `innerColor`, `outerColor`, `focus`, `speed`, `interactive`, `stars`,
+`quality`, `motion` (auto/always/never), `maxFps` (default 30), and `active`
+(default true, an additional embedding pause gate). It also reads Slidev's
+current page and render context, so hidden/preloaded and overview instances do
+not autoplay. Motion preference is shared by WebGL and Canvas fallback; an
+explicit `always` overrides the OS setting, not slide or tab visibility.
 
 ## `Figure`
 

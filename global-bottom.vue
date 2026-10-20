@@ -71,11 +71,14 @@ const progressStyle = computed(() => {
   z-index: 45;
   height: var(--ket-progress-height, 2px);
   pointer-events: none;
+  /* Palette-driven track + fill: mono paints a flat accent on a faint
+     track; vivid restores the violet gradient bar without a track. */
+  background: var(--ket-progress-track, transparent);
 }
 
 .ket-progress-bar {
   height: 100%;
-  background: linear-gradient(90deg, var(--ket-ac-m), var(--ket-ac-bd));
+  background: var(--ket-progress-fill, linear-gradient(90deg, var(--ket-ac-m), var(--ket-ac-bd)));
   transition: width 0.25s ease;
 }
 </style>

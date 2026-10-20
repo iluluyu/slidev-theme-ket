@@ -6,7 +6,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { computed, ref, unref, watch, onMounted, onUnmounted } from 'vue'
+import { useSlideContext } from '@slidev/client'
+import { createFrameLoop, motionEnabled, renderProfile } from '../utils/cosmic-motion.mjs'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
@@ -23,8 +25,14 @@ interface Props {
   interactive?: boolean
   /** Render the far starfield. */
   stars?: boolean
-  /** 'low' halves particle counts for weak GPUs / long decks. */
+  /** Rendering budget; software WebGL is always capped. */
   quality?: 'auto' | 'low' | 'high'
+  /** auto respects OS preferences; always explicitly opts into motion. */
+  motion?: 'auto' | 'always' | 'never'
+  /** Upper frame-rate bound, also limited by the quality budget. */
+  maxFps?: number
+  /** Extra pause control for embedding outside a live slide. */
+  active?: boolean
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -34,16 +42,23 @@ const props = withDefaults(defineProps<Props>(), {
   speed: 1,
   interactive: false,
   stars: true,
-  quality: 'auto'
+  quality: 'auto',
+  motion: 'auto',
+  maxFps: 30,
+  active: true,
 })
 
-const containerRef = ref(null)
-
-let animId: number | null = null
+const containerRef = ref<HTMLElement | null>(null)
+const { $nav, $page, $renderContext } = useSlideContext()
+const slideActive = computed(() =>
+  ['slide', 'presenter'].includes($renderContext.value)
+  && unref($nav.value.currentPage) === $page.value
+  && !unref($nav.value.isPrintMode)
+)
 let renderer: THREE.WebGLRenderer | null = null
 let controls: OrbitControls | null = null
-let resizeObserver: ResizeObserver | null = null
-let cleanupFallback: (() => void) | null = null
+let frameLoop: ReturnType<typeof createFrameLoop> | null = null
+const disposers: Array<() => void> = []
 
 // Value-noise texture for the accretion disc shader (from AutoCover).
 function makeNoise(size: number) {
@@ -87,57 +102,48 @@ function makeNoise(size: number) {
   return tex
 }
 
-// 2D canvas fallback when WebGL is unavailable (particles in the prop colors).
-function start2DFallback(container: HTMLElement): () => void {
+// Canvas fallback shares exactly the same pause / motion / frame-rate policy.
+function start2DFallback(container: HTMLElement) {
   const canvas = document.createElement('canvas')
   canvas.className = 'cb-canvas-inner'
   container.appendChild(canvas)
-  const ctx = canvas.getContext('2d')!
+  const ctx = canvas.getContext('2d')
   let w = (canvas.width = container.clientWidth || 980)
   let h = (canvas.height = container.clientHeight || 552)
+  const particles = Array.from({ length: 160 }, () => ({
+    r: 30 + Math.random() * 260,
+    angle: Math.random() * Math.PI * 2,
+    speed: 0.005 + (1 - Math.random() * 0.8) * 0.02,
+    size: 1 + Math.random() * 2.2,
+    color: Math.random() > 0.4 ? props.innerColor : props.outerColor,
+  }))
 
-  const c1 = props.innerColor
-  const c2 = props.outerColor
-  const particles: Array<{ r: number; angle: number; speed: number; size: number; color: string }> = []
-  const N = 400
-  for (let i = 0; i < N; i++) {
-    particles.push({
-      r: 30 + Math.random() * 260,
-      angle: Math.random() * Math.PI * 2,
-      speed: 0.005 + (1 - Math.random() * 0.8) * 0.02,
-      size: 1 + Math.random() * 2.2,
-      color: Math.random() > 0.4 ? c1 : c2
-    })
-  }
-
-  let running = true
-  function draw() {
-    if (!running) return
+  function draw(dt: number) {
+    if (!ctx) return
     ctx.fillStyle = 'rgba(5, 3, 15, 0.22)'
     ctx.fillRect(0, 0, w, h)
-    const cx = w * 0.65
+    const cx = w * (props.focus === 'left' ? 0.35 : props.focus === 'center' ? 0.5 : 0.65)
     const cy = h * 0.5
     for (const p of particles) {
-      p.angle -= p.speed * props.speed
-      p.r -= 0.15
+      p.angle -= p.speed * props.speed * dt * 60
+      p.r -= 0.15 * Math.abs(props.speed) * dt * 60
       if (p.r < 25) p.r = 280
-      const x = cx + Math.cos(p.angle) * p.r * 1.5
-      const y = cy + Math.sin(p.angle) * p.r * 0.7
       ctx.beginPath()
-      ctx.arc(x, y, p.size, 0, Math.PI * 2)
+      ctx.arc(cx + Math.cos(p.angle) * p.r * 1.5, cy + Math.sin(p.angle) * p.r * 0.7, p.size, 0, Math.PI * 2)
       ctx.fillStyle = p.color
-      ctx.shadowColor = p.color
-      ctx.shadowBlur = 8
       ctx.fill()
     }
-    animId = requestAnimationFrame(draw)
   }
-  draw()
-
-  return () => {
-    running = false
-    if (animId !== null) cancelAnimationFrame(animId)
-    canvas.remove()
+  return {
+    draw,
+    resize() {
+      const newW = container.clientWidth, newH = container.clientHeight
+      if (!newW || !newH || (newW === w && newH === h)) return
+      w = canvas.width = newW
+      h = canvas.height = newH
+      draw(0)
+    },
+    dispose() { canvas.remove() },
   }
 }
 
@@ -156,25 +162,63 @@ function cameraRig() {
 onMounted(() => {
   const container = containerRef.value
   if (!container) return
+  const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+  const reducedMotion = ref(media.matches)
+  const visible = ref(false)
+  const canRender = () => props.active && slideActive.value && visible.value && !document.hidden
+  const canAnimate = () => motionEnabled(props.motion, reducedMotion.value, props.speed)
+  const onMotionChange = (event: MediaQueryListEvent) => { reducedMotion.value = event.matches }
+  const onVisibility = () => frameLoop?.sync({ redraw: true })
+  media.addEventListener('change', onMotionChange)
+  document.addEventListener('visibilitychange', onVisibility)
+  disposers.push(
+    () => media.removeEventListener('change', onMotionChange),
+    () => document.removeEventListener('visibilitychange', onVisibility),
+    watch([slideActive, visible, reducedMotion, () => props.motion, () => props.speed, () => props.active, () => props.maxFps],
+      () => frameLoop?.sync({ redraw: true })),
+  )
+  const io = new IntersectionObserver(entries => {
+    visible.value = entries.some(entry => entry.isIntersecting && entry.intersectionRatio > 0)
+  })
+  io.observe(container)
+  disposers.push(() => io.disconnect())
+  const observeResize = (handleResize: () => void) => {
+    const observer = new ResizeObserver(handleResize)
+    observer.observe(container)
+    window.addEventListener('resize', handleResize)
+    disposers.push(() => {
+      observer.disconnect()
+      window.removeEventListener('resize', handleResize)
+    })
+  }
 
-  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
   let W = container.clientWidth || 980
   let H = container.clientHeight || 552
-  const PR = Math.min(window.devicePixelRatio || 1, 2)
-  // Cap raw pixel budget on hi-dpi screens: the post-process chain samples 2x.
-  const lowPower =
-    props.quality === 'low' ||
-    (props.quality === 'auto' && (window.devicePixelRatio || 1) >= 2)
-
   try {
-    renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false })
+    renderer = new THREE.WebGLRenderer({ antialias: props.quality === 'high', alpha: false, powerPreference: 'low-power' })
   } catch {
-    cleanupFallback = start2DFallback(container)
+    const fallback = start2DFallback(container)
+    container.dataset.cosmicRenderer = 'canvas'
+    frameLoop = createFrameLoop({
+      draw: fallback.draw, canRender, canAnimate,
+      fps: () => Math.min(24, Math.max(1, props.maxFps)),
+    })
+    fallback.draw(0)
+    observeResize(fallback.resize)
+    disposers.push(fallback.dispose)
+    frameLoop.sync()
     return
   }
 
+  const gl = renderer.getContext()
+  const debug = gl.getExtension('WEBGL_debug_renderer_info')
+  const rendererName = String(gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER))
+  const budget = renderProfile(props.quality, rendererName, window.devicePixelRatio || 1, props.maxFps)
+  container.dataset.cosmicRenderer = 'webgl'
+  container.dataset.cosmicSoftware = String(budget.software)
+  container.dataset.cosmicFps = String(budget.fps)
+  renderer.setPixelRatio(budget.pixelRatio)
   renderer.setSize(W, H)
-  renderer.setPixelRatio(lowPower ? Math.min(PR, 1.5) : PR)
   renderer.setClearColor(0x000000, 1)
   const canvasEl = renderer.domElement
   canvasEl.className = 'cb-canvas-inner'
@@ -221,8 +265,9 @@ onMounted(() => {
   `
 
   // 1. Starfield
+  let starMaterial: THREE.RawShaderMaterial | null = null
   if (props.stars) {
-    const N = lowPower ? 16000 : 40000
+    const N = budget.stars
     const pos = new Float32Array(N * 3)
     const sz = new Float32Array(N)
     const col = new Float32Array(N * 3)
@@ -248,7 +293,7 @@ onMounted(() => {
       depthWrite: false,
       depthTest: false,
       uniforms: {
-        uViewHeight: { value: H * 2 * PR },
+        uViewHeight: { value: Math.round(H * budget.scale) },
         uSize: { value: 0.001 }
       },
       vertexShader: `
@@ -278,6 +323,7 @@ onMounted(() => {
         }
       `
     })
+    starMaterial = mat
     const pts = new THREE.Points(geo, mat)
     pts.frustumCulled = false
     spaceScene.add(pts)
@@ -340,7 +386,7 @@ onMounted(() => {
   // 3. Differential-rotation particle vortex
   let particleMaterial: THREE.RawShaderMaterial
   {
-    const N = lowPower ? 20000 : 50000
+    const N = budget.particles
     const dist = new Float32Array(N)
     const szArr = new Float32Array(N)
     const rnd = new Float32Array(N)
@@ -388,7 +434,7 @@ onMounted(() => {
       depthTest: false,
       transparent: true,
       uniforms: {
-        uViewHeight: { value: H * 2 * PR },
+        uViewHeight: { value: Math.round(H * budget.scale) },
         uSize: { value: 0.015 },
         uTime: { value: 0.0 }
       },
@@ -430,11 +476,11 @@ onMounted(() => {
   }
 
   // 4. Multi-pass render targets (space + gravitational-lens distortion)
-  const spaceTarget = new THREE.WebGLRenderTarget(W * 2, H * 2, {
+  const spaceTarget = new THREE.WebGLRenderTarget(Math.round(W * budget.scale), Math.round(H * budget.scale), {
     magFilter: THREE.LinearFilter,
     minFilter: THREE.LinearFilter
   })
-  const distortionTarget = new THREE.WebGLRenderTarget(Math.floor(W * 0.5), Math.floor(H * 0.5), {
+  const distortionTarget = new THREE.WebGLRenderTarget(Math.max(1, Math.round(W * budget.distortionScale)), Math.max(1, Math.round(H * budget.distortionScale)), {
     magFilter: THREE.LinearFilter,
     minFilter: THREE.LinearFilter,
     format: THREE.RedFormat,
@@ -556,35 +602,26 @@ onMounted(() => {
 
   const screenPos = new THREE.Vector3()
   let discTime = 0
-  // Manual slow orbit when not interactive (no event listeners on the canvas).
   const orbitRadius = Math.hypot(camPos.x, camPos.z)
   let orbitAngle = Math.atan2(camPos.x, camPos.z)
   const orbitY = camPos.y
 
-  function renderFrame() {
+  function renderFrame(dt = 0) {
     if (controls) {
-      controls.update()
+      controls.autoRotate = canAnimate()
+      controls.autoRotateSpeed = 0.2 * props.speed
+      controls.update(dt)
     } else {
-      orbitAngle += 0.0006 * props.speed
-      camera.position.set(
-        Math.sin(orbitAngle) * orbitRadius,
-        orbitY,
-        Math.cos(orbitAngle) * orbitRadius
-      )
+      orbitAngle += 0.036 * props.speed * dt
+      camera.position.set(Math.sin(orbitAngle) * orbitRadius, orbitY, Math.cos(orbitAngle) * orbitRadius)
       camera.lookAt(camTarget)
     }
-
-    discTime += 0.002 * props.speed
+    discTime += 0.12 * props.speed * dt
     discMaterial.uniforms.uTime.value = discTime
     particleMaterial.uniforms.uTime.value = discTime
-
     distortionActiveMesh.lookAt(camera.position)
     screenPos.set(0, 0, 0).project(camera)
-    finalMaterial.uniforms.uBlackHolePosition.value.set(
-      screenPos.x * 0.5 + 0.5,
-      screenPos.y * 0.5 + 0.5
-    )
-
+    finalMaterial.uniforms.uBlackHolePosition.value.set(screenPos.x * 0.5 + 0.5, screenPos.y * 0.5 + 0.5)
     renderer!.setRenderTarget(spaceTarget)
     renderer!.render(spaceScene, camera)
     renderer!.setRenderTarget(distortionTarget)
@@ -593,61 +630,64 @@ onMounted(() => {
     renderer!.render(finalScene, orthoCamera)
   }
 
-  // Render one frame synchronously so PDF export / static capture that
-  // fires before the first animation tick still gets a lit scene.
-  renderFrame()
-
-  // Pause the loop when the slide is off-screen or the tab is hidden:
-  // decks keep every layout mounted, so an unwatched cover would otherwise
-  // burn GPU for the whole presentation.
-  let visible = true
-  const io = new IntersectionObserver(entries => {
-    visible = entries.some(e => e.isIntersecting)
-    if (visible && animId === null && !reducedMotion) animId = requestAnimationFrame(animate)
+  // Static first frame for export / overview, but never autoplay those contexts.
+  renderFrame(0)
+  frameLoop = createFrameLoop({
+    draw: renderFrame, canRender, canAnimate,
+    fps: () => Math.min(budget.fps, Math.max(1, props.maxFps)),
   })
-  io.observe(container)
-
-  function animate() {
-    animId = null
-    if (!visible || reducedMotion) return
-    renderFrame()
-    animId = requestAnimationFrame(animate)
+  frameLoop.sync()
+  if (controls) {
+    const onControlChange = () => frameLoop?.sync({ redraw: true })
+    controls.addEventListener('change', onControlChange)
+    disposers.push(() => controls?.removeEventListener('change', onControlChange))
   }
-  if (!reducedMotion) animId = requestAnimationFrame(animate)
 
   function handleResize() {
-    if (!container) return
-    const newW = container.clientWidth || 980
-    const newH = container.clientHeight || 552
-    if (newW === 0 || newH === 0) return
+    const newW = container!.clientWidth, newH = container!.clientHeight
+    if (!newW || !newH || (newW === W && newH === H)) return
     W = newW
     H = newH
     camera.aspect = W / H
     camera.updateProjectionMatrix()
     renderer!.setSize(W, H)
-    spaceTarget.setSize(W * 2, H * 2)
-    distortionTarget.setSize(Math.floor(W * 0.5), Math.floor(H * 0.5))
-    renderFrame()
+    spaceTarget.setSize(Math.max(1, Math.round(W * budget.scale)), Math.max(1, Math.round(H * budget.scale)))
+    distortionTarget.setSize(Math.max(1, Math.round(W * budget.distortionScale)), Math.max(1, Math.round(H * budget.distortionScale)))
+    if (starMaterial) starMaterial.uniforms.uViewHeight.value = spaceTarget.height
+    particleMaterial.uniforms.uViewHeight.value = spaceTarget.height
+    renderFrame(0)
   }
+  observeResize(handleResize)
 
-  resizeObserver = new ResizeObserver(handleResize)
-  resizeObserver.observe(container)
-  window.addEventListener('resize', handleResize)
-
-  onUnmounted(() => {
-    io.disconnect()
+  disposers.push(() => {
+    const geometries = new Set<THREE.BufferGeometry>()
+    const materials = new Set<THREE.Material>()
+    for (const scene of [spaceScene, distortionScene, finalScene]) {
+      scene.traverse(object => {
+        const mesh = object as THREE.Mesh
+        if (mesh.geometry) geometries.add(mesh.geometry)
+        if (mesh.material) {
+          for (const material of Array.isArray(mesh.material) ? mesh.material : [mesh.material]) materials.add(material)
+        }
+      })
+    }
+    for (const geometry of geometries) geometry.dispose()
+    for (const material of materials) material.dispose()
+    noiseTex.dispose()
+    spaceTarget.dispose()
+    distortionTarget.dispose()
   })
 })
 
 onUnmounted(() => {
-  if (animId !== null) cancelAnimationFrame(animId)
-  if (cleanupFallback) cleanupFallback()
-  if (resizeObserver) resizeObserver.disconnect()
-  window.removeEventListener('resize', () => {})
-  if (controls) controls.dispose()
+  frameLoop?.dispose()
+  for (const dispose of disposers.reverse()) dispose()
+  controls?.dispose()
   if (renderer) {
     renderer.dispose()
+    renderer.forceContextLoss()
     renderer.domElement.remove()
+    renderer = null
   }
 })
 </script>
@@ -702,9 +742,4 @@ onUnmounted(() => {
     linear-gradient(180deg, rgba(4, 3, 8, 0.12) 0%, transparent 58%, rgba(4, 3, 9, 0.30) 100%);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .cosmic-bg {
-    /* Frame is already rendered synchronously; nothing animates. */
-  }
-}
 </style>

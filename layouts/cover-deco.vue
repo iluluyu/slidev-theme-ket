@@ -63,6 +63,10 @@ function formatDate(raw: unknown): string {
 
 // Built-in Bloch-sphere decoration (quantum slide 1 / 13 motif).
 // Rendered as a functional component so the default slot stays clean.
+// Strokes/fills are palette tokens: mono spends the single accent like
+// KetOrbit; vivid restores the original violet + rose (#E11D48) pair.
+// SVG presentation attributes cannot hold var(), so colors go through
+// inline `style` (a CSS property) instead of the stroke/fill attributes.
 const BlochSphere = defineComponent({
   name: 'BlochSphere',
   render() {
@@ -73,16 +77,16 @@ const BlochSphere = defineComponent({
       fill: 'none',
       'aria-hidden': 'true',
     }, [
-      h('circle', { cx: '150', cy: '150', r: '130', stroke: '#7229E8', 'stroke-width': '2' }),
-      h('ellipse', { cx: '150', cy: '150', rx: '130', ry: '42', stroke: '#7229E8', 'stroke-width': '1.3', 'stroke-dasharray': '5 4' }),
-      h('line', { x1: '20', y1: '150', x2: '280', y2: '150', stroke: '#7229E8', 'stroke-width': '1.3' }),
-      h('line', { x1: '150', y1: '20', x2: '150', y2: '280', stroke: '#7229E8', 'stroke-width': '1.3' }),
-      h('circle', { cx: '150', cy: '150', r: '90', stroke: '#7229E8', 'stroke-width': '.9' }),
-      h('circle', { cx: '150', cy: '58', r: '7', fill: '#7229E8' }),
-      h('circle', { cx: '240', cy: '150', r: '5', fill: '#7229E8', opacity: '.55' }),
-      h('circle', { cx: '150', cy: '242', r: '5', fill: '#7229E8', opacity: '.55' }),
-      h('line', { x1: '150', y1: '150', x2: '220', y2: '76', stroke: '#E11D48', 'stroke-width': '2.5', 'stroke-linecap': 'round' }),
-      h('circle', { cx: '220', cy: '76', r: '6', fill: '#E11D48' }),
+      h('circle', { cx: '150', cy: '150', r: '130', style: { stroke: 'var(--ket-deco-accent, #7229E8)' }, 'stroke-width': '2' }),
+      h('ellipse', { cx: '150', cy: '150', rx: '130', ry: '42', style: { stroke: 'var(--ket-deco-accent, #7229E8)' }, 'stroke-width': '1.3', 'stroke-dasharray': '5 4' }),
+      h('line', { x1: '20', y1: '150', x2: '280', y2: '150', style: { stroke: 'var(--ket-deco-accent, #7229E8)' }, 'stroke-width': '1.3' }),
+      h('line', { x1: '150', y1: '20', x2: '150', y2: '280', style: { stroke: 'var(--ket-deco-accent, #7229E8)' }, 'stroke-width': '1.3' }),
+      h('circle', { cx: '150', cy: '150', r: '90', style: { stroke: 'var(--ket-deco-accent, #7229E8)' }, 'stroke-width': '.9' }),
+      h('circle', { cx: '150', cy: '58', r: '7', style: { fill: 'var(--ket-deco-accent, #7229E8)' } }),
+      h('circle', { cx: '240', cy: '150', r: '5', style: { fill: 'var(--ket-deco-accent, #7229E8)' }, opacity: '.55' }),
+      h('circle', { cx: '150', cy: '242', r: '5', style: { fill: 'var(--ket-deco-accent, #7229E8)' }, opacity: '.55' }),
+      h('line', { x1: '150', y1: '150', x2: '220', y2: '76', style: { stroke: 'var(--ket-deco-accent-alt, #E11D48)' }, 'stroke-width': '2.5', 'stroke-linecap': 'round' }),
+      h('circle', { cx: '220', cy: '76', r: '6', style: { fill: 'var(--ket-deco-accent-alt, #E11D48)' } }),
     ])
   },
 })

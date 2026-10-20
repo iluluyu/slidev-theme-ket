@@ -16,16 +16,18 @@
   --ket-radius-md: 22px;
   --ket-corner-shape: squircle;
 
-  /* 无 spread 的柔和投影：用于白色表面与填充型 Bra。
-     绝不与描边环 (0 0 0 1.5px ...) 混用 —— 超椭圆角部会让 spread ring 显得粗细不均。 */
-  --ket-surface-shadow: 0 2px 8px rgba(27, 24, 64, 0.045);
+  /* 无 spread 的柔和投影：用于白色表面与填充型 Pad。
+     绝不与描边环 (0 0 0 1.5px ...) 混用 —— 超椭圆角部会让 spread ring 显得粗细不均。
+     几何保持 ket 的单层 0 2px 8px，仅色调随色板：mono 中性黑，vivid 紫调
+     （vivid 在 layout.css 的 [data-ket-palette='vivid'] 块里覆盖）。 */
+  --ket-surface-shadow: 0 2px 8px rgba(0, 0, 0, 0.045);
 
   --ket-inline-code-bg: rgba(0, 0, 0, 0.04); /* Light background for maximum text contrast */
   --ket-inline-code-border: rgba(0, 0, 0, 0.08); /* Subtle border for outline definition */
 }
 
 .dark {
-  /* 暗色背景上需要更强的投影才能读出层次，但仍保持无 spread。 */
+  /* 暗色背景上需要更强的投影才能读出层次，但仍保持无 spread；几何不变。 */
   --ket-surface-shadow: 0 2px 8px rgba(0, 0, 0, 0.20);
 
   --ket-inline-code-bg: rgba(255, 255, 255, 0.08);

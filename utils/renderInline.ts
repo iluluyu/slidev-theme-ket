@@ -1,4 +1,4 @@
-// Render a component prop string (e.g. <Bra title="...">) as inline markdown
+// Render a component prop string (e.g. <Pad title="...">) as inline markdown
 // so that math ($...$), **bold**, *italic*, and `code` in titles render exactly
 // like slide body text. Slidev's markdown+KaTeX pipeline only runs over slot
 // content, never over component attributes — props arrive as plain strings, so
