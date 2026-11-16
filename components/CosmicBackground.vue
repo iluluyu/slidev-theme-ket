@@ -465,8 +465,8 @@ onMounted(() => {
         in vec3 vColor;
         void main(){
           float d = length(gl_PointCoord - vec2(0.5));
-          if(d > 0.5) discard;
-          fragColor = vec4(vColor, 0.65);
+          float alpha = 0.32 * (1.0 - smoothstep(0.15, 0.5, d));
+          fragColor = vec4(vColor, alpha);
         }
       `
     })
@@ -544,7 +544,7 @@ onMounted(() => {
     distortionScene.add(mesh)
   }
 
-  // Final composite: gravitational lensing + RGB-shift dispersion
+  // Final composite: gravitational lensing with one scene-texture lookup.
   let finalMaterial: THREE.RawShaderMaterial
   {
     finalMaterial = new THREE.RawShaderMaterial({
@@ -554,8 +554,7 @@ onMounted(() => {
       uniforms: {
         uSpaceTexture: { value: spaceTarget.texture },
         uDistortionTexture: { value: distortionTarget.texture },
-        uBlackHolePosition: { value: new THREE.Vector2(0.5, 0.5) },
-        uRGBShiftRadius: { value: 0.00001 }
+        uBlackHolePosition: { value: new THREE.Vector2(0.5, 0.5) }
       },
       vertexShader: `
         in vec3 position;
@@ -567,30 +566,20 @@ onMounted(() => {
         }
       `,
       fragmentShader: `
-        #define PI 3.1415926538
         precision highp float;
         in vec2 vUv;
         uniform sampler2D uSpaceTexture;
         uniform sampler2D uDistortionTexture;
         uniform vec2 uBlackHolePosition;
-        uniform float uRGBShiftRadius;
         layout(location=0) out vec4 fragColor;
-
-        vec3 rgbShift(sampler2D tex,vec2 uv,float r){
-          vec3 ang=vec3(PI*2.0/3.0,PI*4.0/3.0,0.0);
-          vec3 c;
-          c.r=texture(tex,uv+vec2(sin(ang.r)*r,cos(ang.r)*r)).r;
-          c.g=texture(tex,uv+vec2(sin(ang.g)*r,cos(ang.g)*r)).g;
-          c.b=texture(tex,uv+vec2(sin(ang.b)*r,cos(ang.b)*r)).b;
-          return c;
-        }
 
         void main(){
           float distortion=texture(uDistortionTexture,vUv).r;
           vec2 toward=vUv-uBlackHolePosition;
           toward*=-distortion*2.0;
           vec2 dUv=vUv+toward;
-          vec3 col=rgbShift(uSpaceTexture,dUv,uRGBShiftRadius);
+          vec3 col=texture(uSpaceTexture,dUv).rgb;
+          col=mix(col,sqrt(col),0.35);
           fragColor=vec4(col,1.0);
         }
       `
@@ -724,22 +713,22 @@ onUnmounted(() => {
 
 .cb-focus-right .cb-overlay {
   background:
-    radial-gradient(circle at 66% 47%, transparent 20%, rgba(4, 3, 10, 0.13) 49%, rgba(4, 3, 10, 0.48) 100%),
+    radial-gradient(circle at 66% 47%, transparent 20%, rgba(4, 3, 10, 0.08) 49%, rgba(4, 3, 10, 0.32) 100%),
     linear-gradient(90deg, rgba(5, 4, 12, 0.80) 0%, rgba(5, 4, 12, 0.42) 34%, rgba(5, 4, 12, 0.06) 63%, transparent 78%),
-    linear-gradient(180deg, rgba(4, 3, 8, 0.12) 0%, transparent 58%, rgba(4, 3, 9, 0.30) 100%);
+    linear-gradient(180deg, rgba(4, 3, 8, 0.12) 0%, transparent 58%, rgba(4, 3, 9, 0.22) 100%);
 }
 
 .cb-focus-left .cb-overlay {
   background:
-    radial-gradient(circle at 34% 47%, transparent 20%, rgba(4, 3, 10, 0.13) 49%, rgba(4, 3, 10, 0.48) 100%),
+    radial-gradient(circle at 34% 47%, transparent 20%, rgba(4, 3, 10, 0.08) 49%, rgba(4, 3, 10, 0.32) 100%),
     linear-gradient(270deg, rgba(5, 4, 12, 0.80) 0%, rgba(5, 4, 12, 0.42) 34%, rgba(5, 4, 12, 0.06) 63%, transparent 78%),
-    linear-gradient(180deg, rgba(4, 3, 8, 0.12) 0%, transparent 58%, rgba(4, 3, 9, 0.30) 100%);
+    linear-gradient(180deg, rgba(4, 3, 8, 0.12) 0%, transparent 58%, rgba(4, 3, 9, 0.22) 100%);
 }
 
 .cb-focus-center .cb-overlay {
   background:
-    radial-gradient(circle at 50% 47%, transparent 20%, rgba(4, 3, 10, 0.13) 49%, rgba(4, 3, 10, 0.48) 100%),
-    linear-gradient(180deg, rgba(4, 3, 8, 0.12) 0%, transparent 58%, rgba(4, 3, 9, 0.30) 100%);
+    radial-gradient(circle at 50% 47%, transparent 20%, rgba(4, 3, 10, 0.08) 49%, rgba(4, 3, 10, 0.32) 100%),
+    linear-gradient(180deg, rgba(4, 3, 8, 0.12) 0%, transparent 58%, rgba(4, 3, 9, 0.22) 100%);
 }
 
 </style>

@@ -26,8 +26,6 @@ tag: Quantum Information · Research Seminar
 
 A framework for multipartite entanglement measures and their role in quantum communication protocols.
 
-> Cover variants in this example: `cover`, `cover-deco`, `cover-cosmic`, `PaperCover`, and `PaperCover deco`.
-
 ---
 layout: cover-cosmic
 heading: Gravitational-Wave Astronomy
@@ -52,7 +50,7 @@ quality: low
 ---
 
 <!-- motion:always 是明确的播放选择；即使 Windows 动态效果关闭，黑洞仍旋转。
-     quality:low + maxFps:24 限制渲染预算；软件 WebGL 自动进一步降至 12 FPS。
+     quality:low + maxFps:24 限制渲染预算；软件 WebGL 最多 24 FPS，实际帧率取决于设备。
      离开此页、隐藏标签页、进入总览，都取消 RAF 与计时器。 -->
 
 ---
@@ -89,6 +87,54 @@ quality: low
 **Design system** — theorem boxes, tables, code, and page footer.
 
   </div></div>
+</div>
+
+---
+
+# Bring the subject and verb together
+
+<div class="ket-compare">
+<div>
+
+<span class="ket-compare-label">A.</span> The smallest of the URFs, a reading frame overlapping another gene, <span class="kw-danger">has been identified</span> as a subunit 8 gene.
+
+</div>
+<div v-click="1">
+
+<span class="ket-compare-label">B.</span> The smallest of the URFs <span class="kw-blue">is</span> URFA6L, a reading frame overlapping another gene; it <span class="kw-blue">has been identified</span> as a subunit 8 gene.
+
+</div>
+</div>
+
+<div v-click="2">
+
+In **B**, the verb arrives earlier. The detail follows without interrupting the subject–verb connection.
+
+</div>
+
+---
+
+# Connect the hypothesis to the conclusion
+
+Let $A$ be Hermitian and $Au=\lambda u$ with $u\ne 0$.
+
+<div class="ket-compare">
+<div>
+
+<span class="ket-compare-label">A.</span> $\lambda=\langle u,Au\rangle/\langle u,u\rangle$ is real, because $A$ is Hermitian.
+
+</div>
+<div v-click="1">
+
+<span class="ket-compare-label">B.</span> Hermiticity gives $\langle u,Au\rangle=\overline{\langle u,Au\rangle}$. The numerator is real, and so is $\lambda$.
+
+</div>
+</div>
+
+<div v-click="2">
+
+**B** supplies the missing link. The denominator $\langle u,u\rangle$ is positive because $u\ne 0$.
+
 </div>
 
 ---

@@ -104,10 +104,18 @@ maxFps: 30
   Animation Effects. `always` explicitly enables rotation even when system
   effects are off; `never` keeps a static first frame.
 - `maxFps`: upper limit, default 30. Actual FPS is also capped by the quality
-  budget; software WebGL (SwiftShader, etc.) is limited to 12.
-- `quality: auto | low | high`: particle and resolution budget. Auto uses DPR 1
-  and a native-size scene target rather than 2× supersampling. Low reduces both.
-  Software rendering is capped regardless of requested quality.
+  budget; software WebGL (SwiftShader, etc.) is limited to 24.
+- `quality: auto | low | high`: particle and resolution budget. Auto and low
+  use a 1.25× output and scene target on hardware WebGL; low uses fewer stars
+  and particles. Software rendering is capped regardless of requested quality:
+  native-size output and scene target without supersampling, with a 24 FPS
+  ceiling. Actual frame rate depends on device performance, and software
+  rendering can consume substantially more CPU at this limit. Star and particle
+  counts are restrained across quality levels; the accretion disc and lensing
+  remain. Particles have softer edges and reduced intensity; the lens composite
+  samples the scene once per pixel and lifts
+  midtones without changing the configured input colors. The fourth example
+  uses `quality: low` and `maxFps: 24` for a restrained hardware budget.
 - `speed`, `stars`, `innerColor`, `outerColor`, `focus`, `interactive`:
   control motion speed, stars, palette, framing and orbit interaction.
 - `heading` overrides the title; author, organization and date come from the

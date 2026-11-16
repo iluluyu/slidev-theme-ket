@@ -3,6 +3,34 @@
 Detailed reference for the components shipped with `slidev-theme-ket`. For a
 quick overview, see the [README](../README.md#components).
 
+## Text comparisons
+
+For a lightweight comparison within a slide, use `.ket-compare` around two
+columns and `.ket-compare-label` for inline labels. The columns are equal by
+default; set `--ket-compare-columns` on the container to change their ratio.
+The styles add no background, border, or shadow, and use the current palette
+in both light and dark mode. Multiple comparisons can appear on one slide.
+
+```html
+<div class="ket-compare" style="--ket-compare-columns: 3fr 2fr">
+<div>
+
+<span class="ket-compare-label">A.</span> Original text with $x$.
+
+</div>
+<div v-click="1">
+
+<span class="ket-compare-label">B.</span> Revised text with $x$.
+
+</div>
+</div>
+```
+
+Leave blank lines around the Markdown inside each HTML container so that
+formatting and formulas render. Use Slidev's `v-click` on columns and
+explanations independently; the comparison itself does not prescribe a
+reveal order. See the opening comparison slides in `example.md`.
+
 ## `Pad`
 
 Theorem / definition / note block for academic slides. The default style is a

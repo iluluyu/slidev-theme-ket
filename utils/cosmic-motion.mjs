@@ -8,12 +8,12 @@ export function renderProfile(quality, rendererName = '', dpr = 1, maxFps = 30) 
   const software = /swiftshader|llvmpipe|softpipe|software|microsoft basic render/i.test(rendererName)
   const requested = Number.isFinite(maxFps) ? Math.max(1, Math.min(60, maxFps)) : 30
   const profile = software
-    ? { stars: 1200, particles: 3000, pixelRatio: 1, scale: 0.6, distortionScale: 0.25, fps: 12 }
+    ? { stars: 250, particles: 600, pixelRatio: 1, scale: 1, distortionScale: 0.35, fps: 24 }
     : quality === 'low'
-      ? { stars: 4000, particles: 8000, pixelRatio: 1, scale: 0.8, distortionScale: 0.35, fps: 24 }
+      ? { stars: 600, particles: 1500, pixelRatio: 1.25, scale: 1.25, distortionScale: 0.4, fps: 24 }
       : quality === 'high'
-        ? { stars: 40000, particles: 50000, pixelRatio: Math.min(Math.max(dpr, 1), 1.5), scale: 1.5, distortionScale: 0.5, fps: 30 }
-        : { stars: 8000, particles: 14000, pixelRatio: 1, scale: 1, distortionScale: 0.4, fps: 30 }
+        ? { stars: 4000, particles: 12000, pixelRatio: Math.min(Math.max(dpr, 1), 1.5), scale: 1.5, distortionScale: 0.5, fps: 30 }
+        : { stars: 2000, particles: 4500, pixelRatio: 1.25, scale: 1.25, distortionScale: 0.4, fps: 30 }
   return { ...profile, software, fps: Math.min(profile.fps, requested) }
 }
 

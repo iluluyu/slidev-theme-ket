@@ -1024,6 +1024,24 @@
   color: var(--ket-t1);
 }
 
+/* Lightweight, repeatable comparisons within a content slide. */
+.slidev-layout .ket-compare {
+  display: grid;
+  grid-template-columns: var(--ket-compare-columns, minmax(0, 1fr) minmax(0, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.slidev-layout .ket-compare > * {
+  min-width: 0;
+}
+
+.slidev-layout .ket-compare-label {
+  color: var(--ket-t1);
+  font-size: 1.35em;
+  font-weight: 700;
+}
+
 /* Steps / badges: utility classes used by the example deck and compatible with
    plain Markdown + HTML snippets. */
 .slidev-layout .steps {
