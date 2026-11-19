@@ -1,6 +1,9 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createFrameLoop, motionEnabled, renderProfile } from '../utils/cosmic-motion.mjs'
+import { readFileSync } from 'node:fs'
+import { createFrameLoop, motionEnabled, renderProfile, renderResolution } from '../utils/cosmic-motion.mjs'
+
+const resolution = (profile, scale, dpr) => renderResolution(profile, scale, dpr, 976, 549)
 
 function fixture() {
   let clock = 0, nextId = 1, visible = true, moving = true, fps = 30
@@ -41,23 +44,50 @@ test('auto respects reduced motion; explicit always overrides it; never/zero spe
   assert.equal(motionEnabled('always', false, 0), false)
 })
 
-test('software renderer caps even high quality, and auto caps high DPI', () => {
-  const soft = renderProfile('high', 'ANGLE SwiftShader', 3, 60)
-  assert.equal(soft.pixelRatio, 1)
+test('software budgets preserve a native-size low mode and cap high quality', () => {
+  const soft = renderProfile('high', 'ANGLE SwiftShader', 60)
   assert.equal(soft.fps, 24)
-  assert.equal(renderProfile('low', 'ANGLE SwiftShader', 1, 10).fps, 10)
-  assert.equal(soft.scale, 1)
-  assert.equal(soft.distortionScale, 0.35)
-  assert.equal(soft.stars, 250)
-  assert.equal(soft.particles, 600)
-  assert.equal(renderProfile('auto', 'NVIDIA', 3).pixelRatio, 1.25)
-  const low = renderProfile('low', 'NVIDIA', 1, 10)
+  assert.deepEqual(resolution(soft, 2, 3), { output: 2, scene: 2, lens: 1.5, supersample: false })
+  const auto = renderProfile('auto', 'ANGLE SwiftShader')
+  assert.equal(resolution(auto, 2, 3).output, 1.5)
+  assert.equal(soft.stars, auto.stars)
+  const low = renderProfile('low', 'llvmpipe', 10)
   assert.equal(low.fps, 10)
-  assert.equal(low.scale, 1.25)
-  assert.equal(low.pixelRatio, 1.25)
-  assert.equal(low.stars, 600)
-  assert.equal(low.particles, 1500)
-  assert.equal(renderProfile('auto', 'NVIDIA', 1, NaN).fps, 30)
+  assert.deepEqual(resolution(low, 2, 3), { output: 1, scene: 1, lens: 0.35, supersample: false })
+  assert.ok(soft.stars > low.stars)
+})
+
+test('hardware resolution follows Slidev scale and DPR but is capped per quality tier', () => {
+  const auto = renderProfile('auto', 'NVIDIA', NaN)
+  assert.equal(auto.fps, 30)
+  assert.equal(resolution(auto, 1.5, 1).output, 1.5)
+  assert.equal(resolution(auto, 0.75, 2).output, 1.5)
+  assert.equal(resolution(auto, 1.5, 2).output, 2)
+  const low = renderProfile('low', 'NVIDIA')
+  assert.equal(resolution(low, 1.5, 2).output, 1.25)
+  const high = renderProfile('high', 'NVIDIA')
+  assert.equal(high.stars, auto.stars, 'high changes sampling, not the look of the sky')
+  assert.ok(auto.stars > low.stars)
+})
+
+test('hardware high supports native UHD and supersamples 1080p and 1440p', () => {
+  const high = renderProfile('high', 'NVIDIA')
+  const fit = width => resolution(high, width / 976, 1)
+  assert.deepEqual(fit(976), { output: 1, scene: 2, lens: 2, supersample: true })
+  assert.equal(fit(1920).supersample, true)
+  assert.equal(fit(2560).supersample, true)
+  assert.equal(Math.round(976 * fit(3840).output), 3840)
+  assert.equal(fit(3840).supersample, false)
+  assert.ok(renderResolution(high, 8, 2, 1920, 1080).output ** 2 * 1920 * 1080 <= 8_400_001)
+  assert.equal(renderResolution(high, 2, 2, 1920, 1080, 2048).scene * 1920, 2048)
+})
+
+test('the lens keeps the upper arc and blends the foreground across the join', () => {
+  const source = readFileSync(new URL('../components/CosmicBackground.vue', import.meta.url), 'utf8')
+  assert.match(source, /const distortionTarget = new THREE\.WebGLRenderTarget\([^\n]+\{\s*(?:\/\/[^\n]+\n\s*)?depthBuffer: true,/)
+  assert.match(source, /float front=smoothstep\([^;]+dot\(vWorld,uLensNormal\)\);/)
+  assert.match(source, /fragColor=vec4\(s,0\.0,0\.0,alpha\*front\)/)
+  assert.match(source, /mesh\.renderOrder = 1/)
 })
 
 test('30 FPS scheduler uses a timer instead of spinning RAF at display frequency', () => {

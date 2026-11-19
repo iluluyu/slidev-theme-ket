@@ -20,3 +20,15 @@ export function resolvePalette(value) {
   if (typeof value !== 'string') return 'mono'
   return value.trim().toLowerCase() === 'vivid' ? 'vivid' : 'mono'
 }
+
+/**
+ * Select a cover gradient independently of body colors. Missing/invalid values
+ * follow the palette, preserving existing decks and headmatter HMR resets.
+ * @param {unknown} value raw `themeConfig.coverGradient`
+ * @param {unknown} palette raw `themeConfig.palette`
+ * @returns {'mono' | 'vivid'}
+ */
+export function resolveCoverGradient(value, palette) {
+  const normalized = typeof value === 'string' ? value.trim().toLowerCase() : ''
+  return KET_PALETTES.includes(normalized) ? normalized : resolvePalette(palette)
+}

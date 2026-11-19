@@ -35,13 +35,13 @@ test('no component forwards or registers the old Bra name', () => {
 test('Pad.vue keeps the full original prop API and pad-* class/variable names', () => {
   const src = readFileSync(padPath, 'utf8')
   // The original Bra API, preserved verbatim through the rename.
-  for (const prop of ['type', 'title', 'customTitle', 'name', 'number', 'compact', 'inline', 'border',
+  for (const prop of ['type', 'title', 'customTitle', 'name', 'number', 'compact', 'inline', 'border', 'pure',
     'italic', 'tone', 'color', 'bgColor', 'titleColor', 'borderColor'])
     assert.match(src, new RegExp(`\\b${prop}\\?:`), `props interface must keep '${prop}'`)
   // CSS classes and custom properties are fully renamed, no old names kept.
   assert.equal(/bra/i.test(src), false, 'Pad.vue must not contain the old bra name anywhere')
-  for (const cls of ['pad-block', 'pad-header', 'pad-type', 'pad-number', 'pad-name', 'pad-dot',
-    'pad-content', 'pad-compact', 'pad-inline', 'pad-border', 'pad-italic'])
+  for (const cls of ['pad-block', 'pad-header', 'pad-type', 'pad-number', 'pad-name',
+    'pad-content', 'pad-compact', 'pad-inline', 'pad-border', 'pad-pure', 'pad-italic'])
     assert.ok(src.includes(cls), `missing class .${cls}`)
   for (const tone of ['default', 'primary', 'danger', 'warning', 'success', 'muted'])
     assert.ok(src.includes(`pad-tone-${tone}`), `missing tone class pad-tone-${tone}`)
@@ -159,14 +159,14 @@ test('explicit tone overrides the type map; unknown tones fall back; tone is cas
     /class="pad-block pad-tone-danger"/)
 })
 
-test('title, name, number and header parts render in order with the trailing dot', async () => {
+test('title, name, number and header parts render in order without a trailing dot', async () => {
   const html = rendersRoot(await renderPad({ type: 'theorem', name: 'No-Cloning', number: 1 }, () => 'body'))
   const header = html.slice(html.indexOf('pad-header'), html.indexOf('pad-content'))
   assert.ok(header.includes('>Theorem<'))
   assert.ok(header.includes('>1<'))
   assert.ok(header.includes('(No-Cloning)'))
-  assert.match(header, /pad-dot">\.<\/span>/)
-  const order = ['Theorem', '1', '(No-Cloning)', '.'].map(s => header.indexOf(s))
+  assert.equal(header.includes('pad-dot'), false, 'no trailing dot is appended to the header')
+  const order = ['Theorem', '1', '(No-Cloning)'].map(s => header.indexOf(s))
   assert.deepEqual(order, [...order].sort((a, b) => a - b), 'header parts must render in order')
 })
 
@@ -212,6 +212,45 @@ test('border and italic flags set their variant classes', async () => {
   const html = await renderPad({ type: 'theorem', border: true, italic: true }, () => 'body')
   assert.match(html, /pad-border/)
   assert.match(html, /pad-italic/)
+})
+
+test('pure removes the decoration variant without changing the semantic tone or header', async () => {
+  const html = await renderPad({ type: 'theorem', tone: 'success', pure: true, border: true,
+    number: '1.1', name: 'Pure theorem', titleColor: '#445566' }, () => 'body')
+  assert.match(html, /pad-pure/)
+  assert.match(html, /pad-tone-success/)
+  assert.equal(/pad-border/.test(html), false, 'pure must win over border')
+  assert.match(html, /pad-header/)
+  assert.ok(html.includes('>Theorem<'))
+  assert.ok(html.includes('>1.1<'))
+  assert.ok(html.includes('(Pure theorem)'))
+  assert.ok(html.includes('--pad-title-color:#445566'))
+  assert.equal(/pad-compact|pad-inline/.test(html), false, 'pure alone must not change density')
+})
+
+test('pure composes with compact/inline and can be explicitly disabled', async () => {
+  for (const density of [{ compact: true }, { inline: true }]) {
+    const html = await renderPad({ pure: true, ...density }, () => 'body')
+    assert.match(html, /pad-pure/)
+    assert.match(html, /pad-compact/)
+    assert.match(html, /pad-inline/)
+  }
+  const off = await renderPad({ pure: false, border: true }, () => 'body')
+  assert.equal(/pad-pure/.test(off), false)
+  assert.match(off, /pad-border/)
+  assert.equal(/pad-pure/.test(await renderPad({}, () => 'body')), false)
+})
+
+test('pure CSS removes fill, border and shadow in both modes without resetting text or spacing', () => {
+  const src = readFileSync(padPath, 'utf8')
+  const match = src.match(/\.pad-block\.pad-pure,\s*\.dark \.pad-block\.pad-pure\s*\{([^}]+)\}/)
+  assert.ok(match, 'light and dark pure selectors must share a decoration reset')
+  assert.match(match[1], /background:\s*none;/)
+  assert.match(match[1], /border:\s*0;/)
+  assert.match(match[1], /box-shadow:\s*none;/)
+  assert.doesNotMatch(match[1], /(?:^|;)\s*(?:padding|margin|font-size|color|--pad-title-color)\s*:/)
+  assert.ok(src.indexOf(match[0]) > src.indexOf('.pad-block.pad-border {'))
+  assert.ok(src.includes('color: var(--pad-title-color);'), 'semantic emphasis still uses the tone')
 })
 
 test('color props become --pad-* custom properties; borderColor falls back to bgColor', async () => {

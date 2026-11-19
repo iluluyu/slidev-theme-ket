@@ -18,12 +18,23 @@ gradient: true
 ---
 ```
 
-- `gradient: true` — gradient text fill for the title.
+- `gradient: true` — enable the title gradient. Choose its colors globally with
+  `themeConfig.coverGradient: mono | vivid`; omitted/invalid values follow
+  `themeConfig.palette`. This leaves body colors unchanged.
 - `author` / `organization` / `date` — shown under the title (`organization`
   accepts HTML).
 
 `gradient` can be set **per slide** to mix plain and gradient covers in one
-deck.
+deck. For a vivid cover with restrained body colors, use this headmatter:
+
+```yaml
+themeConfig:
+  palette: mono
+  coverGradient: vivid
+```
+
+The gradient choice also applies to `cover-deco`, `PaperCover`, and `thanks`,
+which share `--ket-gradient-cover`. Cosmic covers keep their own treatment.
 
 ## `intro`
 
@@ -88,15 +99,17 @@ A framework for multipartite entanglement measures.
 
 ## `cover-cosmic`
 
-Three.js black-hole cover with a text-safe gradient and optional link card.
+Three.js black-hole cover with a silver-blue inner crescent, flowing violet
+filaments, and a sparse sky. The default camera drifts gently around the
+initial viewpoint; the title overlay and optional link card stay fixed.
 
 ```yaml
 ---
 layout: cover-cosmic
 heading: A Research Talk
-motion: always
-quality: auto
-maxFps: 30
+quality: high
+speed: 0.45
+maxFps: 24
 ---
 ```
 
@@ -105,21 +118,44 @@ maxFps: 30
   effects are off; `never` keeps a static first frame.
 - `maxFps`: upper limit, default 30. Actual FPS is also capped by the quality
   budget; software WebGL (SwiftShader, etc.) is limited to 24.
-- `quality: auto | low | high`: particle and resolution budget. Auto and low
-  use a 1.25× output and scene target on hardware WebGL; low uses fewer stars
-  and particles. Software rendering is capped regardless of requested quality:
-  native-size output and scene target without supersampling, with a 24 FPS
-  ceiling. Actual frame rate depends on device performance, and software
-  rendering can consume substantially more CPU at this limit. Star and particle
-  counts are restrained across quality levels; the accretion disc and lensing
-  remain. Particles have softer edges and reduced intensity; the lens composite
-  samples the scene once per pixel and lifts
-  midtones without changing the configured input colors. The fourth example
-  uses `quality: low` and `maxFps: 24` for a restrained hardware budget.
+- `quality: auto | low | high`: controls sampling, resolution, and the
+  low-budget star count. The disc is shaded directly at each lensed pixel.
+  Output follows the slide's displayed size and device pixel ratio, bounded by
+  the following caps (multiples of the authored canvas dimensions):
+
+  | Quality | Hardware output cap | Software WebGL output cap |
+  | --- | --- | --- |
+  | `low` | 1.25× | 1× |
+  | `auto` (default) | 2× | 1.5× |
+  | `high` | 4×, up to 8.4 MP | 2× |
+
+  Hardware `high` requests the high-performance GPU and uses a lens map at
+  the scene resolution, preserving the same lens depth ordering and camera
+  framing across quality tiers. It shades four subpixel samples through 1440p;
+  above that, it shades once at native output resolution (up to UHD on a
+  typical 16:9 canvas). The GPU's texture limit still applies. Software
+  WebGL keeps the lighter sampling path; its `high` lens map uses 75% of
+  the output dimensions. All tiers sample the lensed shadow boundary at
+  extra subpixel positions and apply edge coverage after tone mapping. The
+  two lens planes blend across their depth intersection, so the contour
+  turns smoothly where the arcs meet. The edge filter estimates its width
+  from symmetric samples to reduce shimmer as the silhouette moves. The
+  disc filaments keep their own texture filter and flow around the hole
+  with a bounded, radius-dependent shear. Use `quality: low` or lower
+  `maxFps` if a machine struggles. To slow the orbit and disc flow without
+  reducing frame rate, lower `speed` independently. The showcase includes
+  a slow high-quality cover, a low-budget cover, and a high-quality still.
 - `speed`, `stars`, `innerColor`, `outerColor`, `focus`, `interactive`:
   control motion speed, stars, palette, framing and orbit interaction.
+  `innerColor` defaults to `#a0b3ff` and `outerColor` to `#5a42cc`.
+  Set `stars: false` for a completely clean backdrop.
 - `heading` overrides the title; author, organization and date come from the
   headmatter. `link`, `linkLabel`, `linkSublabel` configure the glass link card.
+
+For exact 16:9 full-screen fit, set `aspectRatio: 16/9` and a
+`canvasWidth` divisible by 16 in the deck headmatter (the showcase uses
+976). Slidev fits rather than stretches the canvas; on other screen ratios,
+the live cosmic cover uses a dark surround to avoid bright side bars.
 
 Animation runs only on the current, intersecting live slide with a visible
 document. Overview, printing/export and next-slide previews get a static frame.

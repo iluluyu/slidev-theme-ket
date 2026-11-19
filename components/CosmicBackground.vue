@@ -8,7 +8,7 @@
 <script setup lang="ts">
 import { computed, ref, unref, watch, onMounted, onUnmounted } from 'vue'
 import { useSlideContext } from '@slidev/client'
-import { createFrameLoop, motionEnabled, renderProfile } from '../utils/cosmic-motion.mjs'
+import { createFrameLoop, motionEnabled, renderProfile, renderResolution } from '../utils/cosmic-motion.mjs'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 
@@ -25,7 +25,7 @@ interface Props {
   interactive?: boolean
   /** Render the far starfield. */
   stars?: boolean
-  /** Rendering budget; software WebGL is always capped. */
+  /** Rendering budget; low keeps a light profile even on CPU-rendered WebGL. */
   quality?: 'auto' | 'low' | 'high'
   /** auto respects OS preferences; always explicitly opts into motion. */
   motion?: 'auto' | 'always' | 'never'
@@ -36,8 +36,8 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  innerColor: '#ff8080',
-  outerColor: '#3633ff',
+  innerColor: '#a0b3ff',
+  outerColor: '#5a42cc',
   focus: 'right',
   speed: 1,
   interactive: false,
@@ -49,7 +49,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const containerRef = ref<HTMLElement | null>(null)
-const { $nav, $page, $renderContext } = useSlideContext()
+const { $nav, $page, $renderContext, $scale, $zoom } = useSlideContext()
 const slideActive = computed(() =>
   ['slide', 'presenter'].includes($renderContext.value)
   && unref($nav.value.currentPage) === $page.value
@@ -73,7 +73,7 @@ function makeNoise(size: number) {
   }
   const sm = (t: number) => t * t * (3 - 2 * t)
   const mix = (a: number, b: number, t: number) => a + t * (b - a)
-  const octs = [{ f: 8, a: 0.5 }, { f: 16, a: 0.3 }, { f: 32, a: 0.2 }]
+  const octs = [{ f: 8, a: 0.44 }, { f: 16, a: 0.27 }, { f: 32, a: 0.16 }, { f: 64, a: 0.09 }, { f: 128, a: 0.04 }]
   for (let py = 0; py < size; py++) {
     for (let px = 0; px < size; px++) {
       let v = 0
@@ -195,7 +195,11 @@ onMounted(() => {
   let W = container.clientWidth || 980
   let H = container.clientHeight || 552
   try {
-    renderer = new THREE.WebGLRenderer({ antialias: props.quality === 'high', alpha: false, powerPreference: 'low-power' })
+    renderer = new THREE.WebGLRenderer({
+      antialias: false,
+      alpha: false,
+      powerPreference: props.quality === 'high' ? 'high-performance' : 'low-power',
+    })
   } catch {
     const fallback = start2DFallback(container)
     container.dataset.cosmicRenderer = 'canvas'
@@ -213,16 +217,23 @@ onMounted(() => {
   const gl = renderer.getContext()
   const debug = gl.getExtension('WEBGL_debug_renderer_info')
   const rendererName = String(gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER))
-  const budget = renderProfile(props.quality, rendererName, window.devicePixelRatio || 1, props.maxFps)
+  const budget = renderProfile(props.quality, rendererName)
+  const maxDimension = Math.min(renderer.capabilities.maxTextureSize, ...gl.getParameter(gl.MAX_VIEWPORT_DIMS))
+  const getResolution = (width: number, height: number) => renderResolution(
+    budget, ($scale.value || 1) * ($zoom.value || 1), window.devicePixelRatio || 1,
+    width, height, maxDimension,
+  )
+  let resolution = getResolution(W, H)
   container.dataset.cosmicRenderer = 'webgl'
   container.dataset.cosmicSoftware = String(budget.software)
-  container.dataset.cosmicFps = String(budget.fps)
-  renderer.setPixelRatio(budget.pixelRatio)
+  renderer.setPixelRatio(resolution.output)
   renderer.setSize(W, H)
   renderer.setClearColor(0x000000, 1)
   const canvasEl = renderer.domElement
   canvasEl.className = 'cb-canvas-inner'
   container.appendChild(canvasEl)
+
+  const fps = () => Math.min(budget.fps, Number.isFinite(props.maxFps) ? Math.max(1, props.maxFps) : 30)
 
   const { pos: camPos, target: camTarget } = cameraRig()
   const camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 2000)
@@ -250,7 +261,7 @@ onMounted(() => {
 
   const innerColor = new THREE.Color(props.innerColor)
   const outerColor = new THREE.Color(props.outerColor)
-  const noiseTex = makeNoise(128)
+  const noiseTex = makeNoise(256)
 
   const BASE_VERT = `
     uniform mat4 projectionMatrix;
@@ -271,17 +282,22 @@ onMounted(() => {
     const pos = new Float32Array(N * 3)
     const sz = new Float32Array(N)
     const col = new Float32Array(N * 3)
+    // Fixed sky across slides, reloads, and static exports.
+    let seed = 1458
+    const random = () => ((seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0) / 4294967296)
     for (let i = 0; i < N; i++) {
       const i3 = i * 3
-      const th = Math.random() * Math.PI * 2
-      const ph = Math.acos(2 * Math.random() - 1)
+      const th = random() * Math.PI * 2
+      const ph = Math.acos(2 * random() - 1)
       pos[i3] = Math.cos(th) * Math.sin(ph) * 400
       pos[i3 + 1] = Math.sin(th) * Math.sin(ph) * 400
       pos[i3 + 2] = Math.cos(ph) * 400
-      sz[i] = Math.random()
-      const c = new THREE.Color()
-      c.setHSL(Math.random(), 1.0, 0.8)
-      col[i3] = c.r; col[i3 + 1] = c.g; col[i3 + 2] = c.b
+      sz[i] = random()
+      const brightness = 0.012 + 0.18 * sz[i] ** 6
+      const warmth = random()
+      col[i3] = brightness * (0.65 + 0.35 * warmth)
+      col[i3 + 1] = brightness * 0.86
+      col[i3 + 2] = brightness * (1 - 0.15 * warmth)
     }
     const geo = new THREE.BufferGeometry()
     geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3))
@@ -293,8 +309,8 @@ onMounted(() => {
       depthWrite: false,
       depthTest: false,
       uniforms: {
-        uViewHeight: { value: Math.round(H * budget.scale) },
-        uSize: { value: 0.001 }
+        uViewHeight: { value: Math.round(H * resolution.scene) },
+        uSize: { value: 0.0027 }
       },
       vertexShader: `
         uniform mat4 projectionMatrix;
@@ -308,7 +324,7 @@ onMounted(() => {
         void main(){
           vec4 mv=modelViewMatrix*vec4(position,1.0);
           gl_Position=projectionMatrix*mv;
-          gl_PointSize=aSize*uSize*uViewHeight;
+          gl_PointSize=max(1.5,(0.32+0.68*aSize)*uSize*uViewHeight);
           vColor=aColor;
         }
       `,
@@ -318,8 +334,7 @@ onMounted(() => {
         in vec3 vColor;
         void main(){
           float d=length(gl_PointCoord-vec2(0.5));
-          if(d>0.5) discard;
-          fragColor=vec4(vColor,1.0);
+          fragColor=vec4(vColor*(1.0-smoothstep(0.08,0.50,d)),1.0);
         }
       `
     })
@@ -329,164 +344,22 @@ onMounted(() => {
     spaceScene.add(pts)
   }
 
-  // 2. Accretion disc cylinder
-  let discMaterial: THREE.RawShaderMaterial
-  {
-    const geo = new THREE.CylinderGeometry(5, 1, 0, 64, 10, true)
-    discMaterial = new THREE.RawShaderMaterial({
-      glslVersion: THREE.GLSL3,
-      side: THREE.DoubleSide,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      depthTest: false,
-      transparent: true,
-      uniforms: {
-        uTime: { value: 0 },
-        uNoiseTexture: { value: noiseTex },
-        uInnerColor: { value: innerColor },
-        uOuterColor: { value: outerColor }
-      },
-      vertexShader: BASE_VERT,
-      fragmentShader: `
-        precision highp float;
-        uniform float uTime;
-        uniform sampler2D uNoiseTexture;
-        uniform vec3 uInnerColor;
-        uniform vec3 uOuterColor;
-        in vec2 vUv;
-        layout(location=0) out vec4 fragColor;
-
-        float invLerp(float v,float lo,float hi){return(v-lo)/(hi-lo);}
-        vec3 bAdd(vec3 b,vec3 a){return min(b+a,vec3(1.0));}
-
-        void main(){
-          vec4 col=vec4(0.0,0.0,0.0,1.0);
-          float its=3.0;
-          for(float i=0.0;i<its;i++){
-            float p=i/(its-1.0);
-            float inten=1.0-((vUv.y-p)*its)*0.5;
-            inten=smoothstep(0.0,1.0,inten);
-            vec2 uv=vUv;
-            uv.y*=2.0;
-            uv.x+=uTime/((i*10.0)+1.0);
-            vec3 rc=mix(uInnerColor,uOuterColor,p);
-            float n=texture(uNoiseTexture,uv).r;
-            rc=mix(vec3(0.0),rc,n*inten);
-            col.rgb=bAdd(col.rgb,rc);
-          }
-          float e=min(invLerp(vUv.y,0.0,0.02),invLerp(vUv.y,1.0,0.5));
-          col.rgb=mix(vec3(0.0),col.rgb,e);
-          fragColor=col;
-        }
-      `
-    })
-    spaceScene.add(new THREE.Mesh(geo, discMaterial))
-  }
-
-  // 3. Differential-rotation particle vortex
-  let particleMaterial: THREE.RawShaderMaterial
-  {
-    const N = budget.particles
-    const dist = new Float32Array(N)
-    const szArr = new Float32Array(N)
-    const rnd = new Float32Array(N)
-    for (let i = 0; i < N; i++) {
-      dist[i] = Math.random()
-      szArr[i] = Math.random()
-      rnd[i] = Math.random()
-    }
-    const angles = new Float32Array(N)
-    const radii = new Float32Array(N)
-    const speeds = new Float32Array(N)
-    const cols = new Float32Array(N * 3)
-    const FT = 10004.0
-    for (let i = 0; i < N; i++) {
-      const conc = 0.05
-      let oP = THREE.MathUtils.smoothstep(dist[i], 0, 1)
-      oP = conc + (oP - conc) * Math.pow(rnd[i], 1.7)
-      const r = 1.0 + oP * 5.0
-      const ang = oP - FT * (1.0 - oP) * 3.0
-      angles[i] = ang
-      radii[i] = r
-      speeds[i] = (1.0 - oP) * 3.2 + 0.2
-      cols[i * 3] = innerColor.r + (outerColor.r - innerColor.r) * oP
-      cols[i * 3 + 1] = innerColor.g + (outerColor.g - innerColor.g) * oP
-      cols[i * 3 + 2] = innerColor.b + (outerColor.b - innerColor.b) * oP
-    }
-    const pGeo = new THREE.BufferGeometry()
-    const pos3 = new Float32Array(N * 3)
-    for (let i = 0; i < N; i++) {
-      pos3[i * 3] = Math.sin(angles[i]) * radii[i]
-      pos3[i * 3 + 1] = 0
-      pos3[i * 3 + 2] = Math.cos(angles[i]) * radii[i]
-    }
-    pGeo.setAttribute('position', new THREE.Float32BufferAttribute(pos3, 3))
-    pGeo.setAttribute('aAngle', new THREE.Float32BufferAttribute(angles, 1))
-    pGeo.setAttribute('aRadius', new THREE.Float32BufferAttribute(radii, 1))
-    pGeo.setAttribute('aSpeed', new THREE.Float32BufferAttribute(speeds, 1))
-    pGeo.setAttribute('aSize', new THREE.Float32BufferAttribute(szArr, 1))
-    pGeo.setAttribute('aColor', new THREE.Float32BufferAttribute(cols, 3))
-
-    particleMaterial = new THREE.RawShaderMaterial({
-      glslVersion: THREE.GLSL3,
-      blending: THREE.AdditiveBlending,
-      depthWrite: false,
-      depthTest: false,
-      transparent: true,
-      uniforms: {
-        uViewHeight: { value: Math.round(H * budget.scale) },
-        uSize: { value: 0.015 },
-        uTime: { value: 0.0 }
-      },
-      vertexShader: `
-        uniform mat4 projectionMatrix;
-        uniform mat4 modelViewMatrix;
-        uniform float uViewHeight;
-        uniform float uSize;
-        uniform float uTime;
-        in float aAngle;
-        in float aRadius;
-        in float aSpeed;
-        in float aSize;
-        in vec3 aColor;
-        out vec3 vColor;
-        void main(){
-          float ang = aAngle - uTime * aSpeed;
-          vec3 pos = vec3(sin(ang) * aRadius, 0.0, cos(ang) * aRadius);
-          vec4 mv = modelViewMatrix * vec4(pos, 1.0);
-          gl_Position = projectionMatrix * mv;
-          gl_PointSize = aSize * uSize * uViewHeight * (1.0 / -mv.z);
-          vColor = aColor;
-        }
-      `,
-      fragmentShader: `
-        precision highp float;
-        layout(location=0) out vec4 fragColor;
-        in vec3 vColor;
-        void main(){
-          float d = length(gl_PointCoord - vec2(0.5));
-          float alpha = 0.32 * (1.0 - smoothstep(0.15, 0.5, d));
-          fragColor = vec4(vColor, alpha);
-        }
-      `
-    })
-    const pts = new THREE.Points(pGeo, particleMaterial)
-    pts.frustumCulled = false
-    spaceScene.add(pts)
-  }
-
-  // 4. Multi-pass render targets (space + gravitational-lens distortion)
-  const spaceTarget = new THREE.WebGLRenderTarget(Math.round(W * budget.scale), Math.round(H * budget.scale), {
+  // 2. Render the sparse sky and lens displacement into separate targets.
+  const spaceTarget = new THREE.WebGLRenderTarget(Math.round(W * resolution.scene), Math.round(H * resolution.scene), {
+    depthBuffer: false,
     magFilter: THREE.LinearFilter,
     minFilter: THREE.LinearFilter
   })
-  const distortionTarget = new THREE.WebGLRenderTarget(Math.max(1, Math.round(W * budget.distortionScale)), Math.max(1, Math.round(H * budget.distortionScale)), {
+  const distortionTarget = new THREE.WebGLRenderTarget(Math.max(1, Math.round(W * resolution.lens)), Math.max(1, Math.round(H * resolution.lens)), {
+    // Keep depth for the upper arc; the foreground plane blends into it at the join.
+    depthBuffer: true,
     magFilter: THREE.LinearFilter,
     minFilter: THREE.LinearFilter,
     format: THREE.RedFormat,
     type: THREE.FloatType
   })
 
+  const lensNormal = new THREE.Vector3()
   let distortionActiveMesh: THREE.Mesh
   {
     const geo = new THREE.PlaneGeometry(1, 1)
@@ -522,30 +395,53 @@ onMounted(() => {
       side: THREE.DoubleSide,
       transparent: true,
       uniforms: {},
-      vertexShader: BASE_VERT,
+      depthTest: false,
+      depthWrite: false,
+      uniforms: { uLensNormal: { value: lensNormal } },
+      vertexShader: `
+        uniform mat4 projectionMatrix;
+        uniform mat4 viewMatrix;
+        uniform mat4 modelMatrix;
+        in vec3 position;
+        in vec2 uv;
+        out vec2 vUv;
+        out vec3 vWorld;
+        void main(){
+          vec4 world=modelMatrix*vec4(position,1.0);
+          vWorld=world.xyz;
+          vUv=uv;
+          gl_Position=projectionMatrix*viewMatrix*world;
+        }
+      `,
       fragmentShader: `
         precision highp float;
         in vec2 vUv;
+        in vec3 vWorld;
+        uniform vec3 uLensNormal;
         layout(location=0) out vec4 fragColor;
-        float invLerp(float v,float lo,float hi){return(v-lo)/(hi-lo);}
-        float remap(float v,float a,float b,float c,float d){return mix(c,d,invLerp(v,a,b));}
         void main(){
           float d=length(vUv-0.5);
-          float s=remap(d,0.0,0.15,1.0,0.0);
-          s=smoothstep(0.0,1.0,s);
-          float alpha=smoothstep(0.0,1.0,remap(d,0.4,0.5,1.0,0.0));
-          fragColor=vec4(s,0.0,0.0,alpha);
+          float s=1.0-smoothstep(0.0,0.15,d);
+          float alpha=1.0-smoothstep(0.4,0.5,d);
+          // Replace the depth-test cutoff with a continuous transition in world space.
+          // A positive distance is the part of the disc in front of the upper lens.
+          float front=smoothstep(-0.80,1.15,dot(vWorld,uLensNormal));
+          fragColor=vec4(s,0.0,0.0,alpha*front);
         }
       `
     })
     const mesh = new THREE.Mesh(geo, mat)
     mesh.scale.set(10, 10, 10)
     mesh.rotation.x = Math.PI * 0.5
+    mesh.renderOrder = 1 // Composite after the camera-facing lens, regardless of sort order.
     distortionScene.add(mesh)
   }
 
-  // Final composite: gravitational lensing with one scene-texture lookup.
+  // 3. Evaluate the disc at the lensed output pixel, not in the space texture.
+  // The lens magnifies parts of the disc: upsampling a pre-rendered disc here
+  // would also magnify its texels and soften the bright edge of the shadow.
   let finalMaterial: THREE.RawShaderMaterial
+  const outputSize = new THREE.Vector2()
   {
     finalMaterial = new THREE.RawShaderMaterial({
       glslVersion: THREE.GLSL3,
@@ -554,7 +450,15 @@ onMounted(() => {
       uniforms: {
         uSpaceTexture: { value: spaceTarget.texture },
         uDistortionTexture: { value: distortionTarget.texture },
-        uBlackHolePosition: { value: new THREE.Vector2(0.5, 0.5) }
+        uBlackHolePosition: { value: new THREE.Vector2(0.5, 0.5) },
+        uInvOutput: { value: new THREE.Vector2() },
+        uSupersample: { value: false },
+        uClipToWorld: { value: new THREE.Matrix4() },
+        uEye: { value: camera.position },
+        uTime: { value: 0 },
+        uNoiseTexture: { value: noiseTex },
+        uInnerColor: { value: innerColor },
+        uOuterColor: { value: outerColor }
       },
       vertexShader: `
         in vec3 position;
@@ -571,16 +475,145 @@ onMounted(() => {
         uniform sampler2D uSpaceTexture;
         uniform sampler2D uDistortionTexture;
         uniform vec2 uBlackHolePosition;
+        uniform vec2 uInvOutput;
+        uniform bool uSupersample;
+        uniform mat4 uClipToWorld;
+        uniform vec3 uEye;
+        uniform float uTime;
+        uniform sampler2D uNoiseTexture;
+        uniform vec3 uInnerColor;
+        uniform vec3 uOuterColor;
         layout(location=0) out vec4 fragColor;
 
+        float discNoise(vec2 uv,float radialFrequency,vec2 angleSlope,vec2 radialSlope){
+          return textureGrad(uNoiseTexture,uv,
+            vec2(angleSlope.x,radialSlope.x*radialFrequency),
+            vec2(angleSlope.y,radialSlope.y*radialFrequency)).r;
+        }
+
+        vec2 lensedUv(vec2 uv){
+          float distortion=textureLod(uDistortionTexture,uv,0.0).r;
+          return uv-2.0*distortion*(uv-uBlackHolePosition);
+        }
+
+        vec2 discPosition(vec2 uv,out bool hitsDisc){
+          // Unproject onto the flat annulus (world Y=0, radii 1 to 5).
+          vec4 nearPoint=uClipToWorld*vec4(uv*2.0-1.0,-1.0,1.0);
+          vec3 ray=nearPoint.xyz-uEye*nearPoint.w;
+          float vertical=ray.y<0.0 ? min(ray.y,-0.00001) : max(ray.y,0.00001);
+          hitsDisc=ray.y*uEye.y<0.0;
+          return uEye.xz-ray.xz*(uEye.y/vertical);
+        }
+
+        float shadowDistance(vec2 uv){
+          bool hit;
+          vec2 pos=discPosition(lensedUv(uv),hit);
+          return hit ? (length(pos)-1.0)*0.25 : 1.0;
+        }
+
+        float edgeTap(vec2 uv,float width,float offset){
+          return smoothstep(-width,width,shadowDistance(uv)+offset);
+        }
+
+        float shadowCoverage(vec2 uv,float r,float pixel,float footprint){
+          if(abs(r)>5.735*pixel) return step(0.0,r);
+
+          // Regularize the signed distance where the two lensed arcs meet.
+          vec2 x=vec2(3.5*uInvOutput.x,0.0);
+          vec2 y=vec2(0.0,3.5*uInvOutput.y);
+          float xp=shadowDistance(uv+x), xm=shadowDistance(uv-x);
+          float yp=shadowDistance(uv+y), ym=shadowDistance(uv-y);
+          float nearby=(xp+xm+yp+ym)*0.25;
+          // Symmetric differences keep the coverage width steadier as the
+          // moving rim crosses the GPU's 2x2 derivative groups.
+          float localPixel=0.5*footprint*length(vec2(xp-xm,yp-ym))/7.0;
+          float width=clamp(max(2.9*localPixel,2.05*pixel),0.00001,0.042);
+          float offset=clamp(0.82*(nearby-r),-1.45*pixel,1.45*pixel);
+
+          // Re-evaluate the lensed geometry at eight subpixel positions near
+          // the silhouette. Texture filtering still uses the original footprint.
+          vec2 dx=uInvOutput*footprint;
+          vec2 a=dx*vec2(0.4375,0.1875);
+          vec2 b=dx*vec2(-0.1875,0.4375);
+          vec2 c=dx*vec2(0.3125,-0.3125);
+          vec2 d=dx*vec2(0.0625,0.0625);
+          float w=0.74*width;
+          return (edgeTap(uv+a,w,offset)+edgeTap(uv-a,w,offset)+edgeTap(uv+b,w,offset)+edgeTap(uv-b,w,offset)
+                + edgeTap(uv+c,w,offset)+edgeTap(uv-c,w,offset)+edgeTap(uv+d,w,offset)+edgeTap(uv-d,w,offset))*0.125;
+        }
+
+        vec3 accretionDisc(vec2 screenUv,vec2 uv,out float skyVisibility){
+          bool hitsDisc;
+          vec2 pos=discPosition(uv,hitsDisc);
+          float radius=length(pos);
+          float r=(radius-1.0)*0.25;
+          vec2 radialSlope=vec2(dFdx(r),dFdy(r));
+          vec2 tangent=vec2(pos.y,-pos.x)*(0.15915494/max(dot(pos,pos),0.00001));
+          // Differentiate position, not atan: its wrap would create a blurred seam.
+          vec2 angleSlope=vec2(dot(tangent,dFdx(pos)),dot(tangent,dFdy(pos)));
+          float footprint=uSupersample ? 0.5 : 1.0;
+          angleSlope*=footprint;
+          radialSlope*=footprint;
+          float pixel=clamp(0.5*(abs(radialSlope.x)+abs(radialSlope.y)),0.00001,0.024);
+          skyVisibility=hitsDisc ? shadowCoverage(screenUv,r,pixel,footprint) : 1.0;
+          if(!hitsDisc || skyVisibility<=0.0 || r > 1.0+pixel) return vec3(0.0);
+
+          // Coherent filaments shear at different rates instead of scattering
+          // bright point sprites over the disc. The mapping repeats at 2π.
+          float a=atan(pos.x,pos.y)*0.15915494;
+          float falloff=exp(-2.65*max(0.0,r));
+          // Keep shear bounded in long-running decks so fine detail stays readable.
+          float shear=0.29*sin(1.6*uTime);
+          float flow=a+0.58*uTime+shear*falloff+0.18*r;
+          vec2 flowSlope=angleSlope+(0.18-2.65*shear*falloff)*radialSlope;
+          float broad=discNoise(vec2(flow,r*1.45),1.45,flowSlope,radialSlope);
+          float threads=discNoise(vec2(flow+0.17,r*7.0),7.0,flowSlope,radialSlope);
+          float grain=discNoise(vec2(flow+0.39,r*17.0),17.0,flowSlope,radialSlope);
+          float fineWeight=1.0-smoothstep(0.0008,0.0045,pixel);
+          float textureLight=0.10+0.64*smoothstep(0.20,0.76,broad)
+                                 +0.34*smoothstep(0.26,0.74,threads);
+          textureLight*=1.0+0.42*fineWeight*(2.0*grain-1.0);
+
+          // A single directional highlight separates the bright crescent from
+          // the dark side. The broad blue-violet skirt fades to space.
+          vec2 view=uEye.xz/max(length(uEye.xz),0.001);
+          float facing=dot(vec2(-pos.y,pos.x)/max(radius,0.001),view);
+          float key=smoothstep(-0.62,0.96,facing);
+          float density=falloff*(1.0-smoothstep(0.54,1.0,r));
+          vec3 tint=mix(uInnerColor,uOuterColor,smoothstep(0.0,0.56,r));
+          float lane=(1.0-smoothstep(0.012,0.080,abs(r-0.15+(broad-0.5)*0.055)));
+          vec3 disc=tint*density*(textureLight+0.46*key*lane)*mix(0.32,2.62,key);
+
+          // Put the brightest part just outside the silhouette, not at the join.
+          float rim=mix(0.76,1.0,smoothstep(0.0,0.013,r))*(1.0-smoothstep(0.010,0.032+pixel,r));
+          float sheen=0.65+0.35*threads;
+          vec3 metal=mix(uInnerColor,vec3(dot(uInnerColor,vec3(0.2126,0.7152,0.0722))),0.30);
+          return disc + metal*rim*sheen*mix(0.16,4.12,key*key);
+        }
+
+        vec3 shade(vec2 uv){
+          vec2 dUv=lensedUv(uv);
+          float skyVisibility;
+          vec3 disc=accretionDisc(uv,dUv,skyVisibility);
+          vec3 light=disc+texture(uSpaceTexture,dUv).rgb;
+          vec3 color=1.0-exp(-light*1.24);
+          vec3 srgb=mix(12.92*color,1.055*pow(color,vec3(1.0/2.4))-0.055,step(0.0031308,color));
+          // The display-space silhouette ramp stays even when the bright rim
+          // hits the tone map's shoulder; the nearby disc texture is untouched.
+          return srgb*skyVisibility;
+        }
+
         void main(){
-          float distortion=texture(uDistortionTexture,vUv).r;
-          vec2 toward=vUv-uBlackHolePosition;
-          toward*=-distortion*2.0;
-          vec2 dUv=vUv+toward;
-          vec3 col=texture(uSpaceTexture,dUv).rgb;
-          col=mix(col,sqrt(col),0.35);
-          fragColor=vec4(col,1.0);
+          vec3 color;
+          if (uSupersample) {
+            // Rotated four-sample grid resolves diagonal edges and thin strands.
+            vec2 a=uInvOutput*vec2(0.375,0.125);
+            vec2 b=uInvOutput*vec2(-0.125,0.375);
+            color=(shade(vUv+a)+shade(vUv-a)+shade(vUv+b)+shade(vUv-b))*0.25;
+          } else {
+            color=shade(vUv);
+          }
+          fragColor=vec4(color,1.0);
         }
       `
     })
@@ -589,26 +622,35 @@ onMounted(() => {
     finalScene.add(plane)
   }
 
+  function updateOutputSampling() {
+    renderer!.getDrawingBufferSize(outputSize)
+    finalMaterial.uniforms.uInvOutput.value.set(1 / outputSize.x, 1 / outputSize.y)
+    finalMaterial.uniforms.uSupersample.value = resolution.supersample
+  }
+  updateOutputSampling()
+
   const screenPos = new THREE.Vector3()
-  let discTime = 0
+  let elapsed = 0
   const orbitRadius = Math.hypot(camPos.x, camPos.z)
-  let orbitAngle = Math.atan2(camPos.x, camPos.z)
+  const heroAngle = Math.atan2(camPos.x, camPos.z)
   const orbitY = camPos.y
 
   function renderFrame(dt = 0) {
+    elapsed += props.speed * dt
     if (controls) {
       controls.autoRotate = canAnimate()
       controls.autoRotateSpeed = 0.2 * props.speed
       controls.update(dt)
     } else {
-      orbitAngle += 0.036 * props.speed * dt
+      const orbitAngle = heroAngle + 0.07 * Math.sin(elapsed * 0.32)
       camera.position.set(Math.sin(orbitAngle) * orbitRadius, orbitY, Math.cos(orbitAngle) * orbitRadius)
       camera.lookAt(camTarget)
     }
-    discTime += 0.12 * props.speed * dt
-    discMaterial.uniforms.uTime.value = discTime
-    particleMaterial.uniforms.uTime.value = discTime
+    finalMaterial.uniforms.uTime.value = elapsed * 0.12
+    camera.updateMatrixWorld()
+    finalMaterial.uniforms.uClipToWorld.value.multiplyMatrices(camera.matrixWorld, camera.projectionMatrixInverse)
     distortionActiveMesh.lookAt(camera.position)
+    lensNormal.copy(camera.position).normalize()
     screenPos.set(0, 0, 0).project(camera)
     finalMaterial.uniforms.uBlackHolePosition.value.set(screenPos.x * 0.5 + 0.5, screenPos.y * 0.5 + 0.5)
     renderer!.setRenderTarget(spaceTarget)
@@ -623,7 +665,7 @@ onMounted(() => {
   renderFrame(0)
   frameLoop = createFrameLoop({
     draw: renderFrame, canRender, canAnimate,
-    fps: () => Math.min(budget.fps, Math.max(1, props.maxFps)),
+    fps,
   })
   frameLoop.sync()
   if (controls) {
@@ -634,19 +676,24 @@ onMounted(() => {
 
   function handleResize() {
     const newW = container!.clientWidth, newH = container!.clientHeight
-    if (!newW || !newH || (newW === W && newH === H)) return
+    if (!newW || !newH) return
+    const next = getResolution(newW, newH)
+    if (newW === W && newH === H && next.output === resolution.output) return
     W = newW
     H = newH
+    if (next.output !== resolution.output) renderer!.setPixelRatio(next.output)
+    resolution = next
     camera.aspect = W / H
     camera.updateProjectionMatrix()
     renderer!.setSize(W, H)
-    spaceTarget.setSize(Math.max(1, Math.round(W * budget.scale)), Math.max(1, Math.round(H * budget.scale)))
-    distortionTarget.setSize(Math.max(1, Math.round(W * budget.distortionScale)), Math.max(1, Math.round(H * budget.distortionScale)))
+    updateOutputSampling()
+    spaceTarget.setSize(Math.round(W * resolution.scene), Math.round(H * resolution.scene))
+    distortionTarget.setSize(Math.max(1, Math.round(W * resolution.lens)), Math.max(1, Math.round(H * resolution.lens)))
     if (starMaterial) starMaterial.uniforms.uViewHeight.value = spaceTarget.height
-    particleMaterial.uniforms.uViewHeight.value = spaceTarget.height
     renderFrame(0)
   }
   observeResize(handleResize)
+  disposers.push(watch([$scale, $zoom], handleResize, { flush: 'post' }))
 
   disposers.push(() => {
     const geometries = new Set<THREE.BufferGeometry>()

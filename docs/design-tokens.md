@@ -18,7 +18,7 @@ themeConfig:
 
 - **`mono` (default)** — the projector-safe palette merged from the retired
   `slidev-theme-ket-mono` variant: neutral gray surfaces, one indigo focus
-  color, restrained semantic fills.
+  color, and clearly visible mid-chroma semantic fills.
 - **`vivid`** — the original ket palette: parchment ground, deep indigo text,
   quantum-violet accent, saturated semantic fills.
 
@@ -26,6 +26,26 @@ The palette is deck-global — there is intentionally no per-slide switch. It
 recolors tokens only: layout sizes, radii, shadows, typography, and the
 component API are identical across palettes. Both palettes support light and
 dark mode.
+
+### Independent cover gradient
+
+Use `themeConfig.coverGradient: mono | vivid` to choose a title gradient
+independently of body colors. Omitted or invalid values follow `palette`.
+For example:
+
+```yaml
+themeConfig:
+  palette: mono
+  coverGradient: vivid
+```
+
+The low-saturation `mono` ramp runs clay → dusty rose → indigo → steel blue;
+`vivid` runs orange → pink → violet → blue. Both use a near-horizontal 100°
+angle and support light/dark backgrounds. `gradient: true/false` still controls
+whether a layout uses gradient text. The choice is shared by `cover`,
+`cover-deco`, `PaperCover`, and `thanks`, not `cover-cosmic`.
+The named tokens `--ket-gradient-cover-mono` / `--ket-gradient-cover-vivid`
+feed the resolved `--ket-gradient-cover` token.
 
 Migrating older decks:
 
@@ -43,31 +63,35 @@ Neutral surfaces carry the hierarchy; the indigo family marks focus.
 | Token | Light | Dark |
 | --- | --- | --- |
 | slide ground | `#F5F5F7` | `#111113` |
-| `--ket-ac` | `#5856D6` | `#7D7AFF` |
-| `--ket-ac-m` | `#5856D6` | `#7D7AFF` |
-| `--ket-ac-lt` | `#F0EFFF` | `rgba(125, 122, 255, 0.13)` |
-| `--ket-ac-bd` | `#D9D8F8` | `#4B496E` |
+| `--ket-ac` | `#4F4BD8` | `#9693FF` |
+| `--ket-ac-m` | `#4F4BD8` | `#9693FF` |
+| `--ket-ac-lt` | `#E3E5F8` | `#242344` |
+| `--ket-ac-bd` | `#B9B9E9` | `#626099` |
 | `--ket-t1` | `#1D1D1F` | `#F5F5F7` |
-| `--ket-t2` | `#424245` | `#D1D1D6` |
-| `--ket-t3` | `#6E6E73` | `#8E8E93` |
+| `--ket-t2` | `#35353A` | `#D1D1D6` |
+| `--ket-t3` | `#62626A` | `#A2A2AA` |
 | `--ket-surface` | `#FFFFFF` | `#1C1C1E` |
 | `--ket-surface-2` | `#F5F5F7` | `#242426` |
 | `--ket-border` | `#D2D2D7` | `#3A3A3C` |
-| `--ket-gradient-cover` | `linear-gradient(108deg, #1D1D1F 0%, #5856D6 68%, #0071E3 100%)` | 同亮色 |
+| `--ket-gradient-cover-mono` | `linear-gradient(100deg, #B5583A 0%, #A5506A 32%, #5A5BC8 70%, #2F72C0 100%)` | 同亮色 |
+| `--ket-on-accent` | `#F5F5F7` | `#111113` |
 
-Semantic fills stay close to neutral so several `Pad` blocks can coexist
-without turning a slide into a color chart. Each tone exposes a `-{bg,lbl}`
+Semantic fills have enough depth to separate from the neutral canvas, while
+lower chroma and earthy labels keep them distinct from vivid. Dark fills are
+opaque tinted zones rather than barely visible alpha overlays. Body text,
+semantic labels, and step numbers are tested at ≥4.5:1 contrast; gradients
+are sampled between stops at ≥3:1 for large headings on both palettes' grounds. Each tone exposes a `-{bg,lbl}`
 pair (for example `--ket-primary-bg` / `--ket-primary-lbl`), consumed by `Pad`
 tones and badges:
 
 | Tone | Light bg / lbl | Dark bg / lbl |
 | --- | --- | --- |
-| `default` | `#F3F2FC` / `#4D4BB7` | `rgba(125, 122, 255, 0.10)` / `#A7A5F5` |
-| `primary` | `#F0F6FC` / `#0066CC` | `rgba(10, 132, 255, 0.10)` / `#64B5FF` |
-| `success` | `#F1F7F3` / `#1A7440` | `rgba(48, 209, 88, 0.09)` / `#66D486` |
-| `warning` | `#FBF7EE` / `#8A5A00` | `rgba(255, 159, 10, 0.09)` / `#E7B65E` |
-| `danger` | `#FBF1F2` / `#B42336` | `rgba(255, 69, 58, 0.09)` / `#FF8A83` |
-| `muted` | `#F5F5F7` / `#6E6E73` | `rgba(142, 142, 147, 0.10)` / `#AEAEB2` |
+| `default` | `#E3E5F8` / `#4440B0` | `#242344` / `#B3B1FF` |
+| `primary` | `#DDE9F7` / `#1757AD` | `#1C2D43` / `#82B7FF` |
+| `success` | `#DBEEE3` / `#206840` | `#1C342A` / `#83D6A6` |
+| `warning` | `#F5E7CB` / `#84530A` | `#3B2E1C` / `#EFBE70` |
+| `danger` | `#F5DFE3` / `#A62D45` | `#3D232E` / `#F49BAE` |
+| `muted` | `#E6E7EB` / `#555964` | `#292A30` / `#B7BAC4` |
 
 ## `vivid` palette
 
@@ -87,7 +111,7 @@ quantum-violet accent.
 | `--ket-surface` | `#FFFFFF` | `#252134` |
 | `--ket-surface-2` | `#F0F1F7` | `#2D2940` |
 | `--ket-border` | `#E2E3EF` | `#3A3552` |
-| `--ket-gradient-cover` | `linear-gradient(135deg, #FF6F00 0%, #DE5471 25%, #A948C9 50%, #6553D8 75%, #1C73FF 100%)` | 同亮色 |
+| `--ket-gradient-cover-vivid` | `linear-gradient(100deg, #E8590C 0%, #E0457B 24%, #B23FD0 50%, #6A4CF0 74%, #1F7AF5 100%)` | 同亮色 |
 
 Saturated semantic fills in light mode; dark mode switches to translucent
 fills with luminous labels so `Pad` blocks read as tinted dark zones instead
@@ -106,13 +130,24 @@ of glowing pastel cards:
 
 Native Markdown lists keep hanging text alignment, modest marker sizes, and
 consistent spacing for tight and loose items. Mixed ordered/unordered nesting
-uses the same rhythm: bullets progress disc → circle → square; nested ordered
-lists use letters then Roman numerals.
-Nested markers use the palette's secondary tiers rather than enlarged accents.
+uses the same rhythm: unordered bullets are small solid squares at every
+depth. Level 1 uses `--ket-ac`; level 2 uses the softer same-hue
+`--ket-marker-l2`; level 3 and deeper use neutral `--ket-t3`. Both ul and ol
+ancestors count toward nesting depth. Body text, marker sizes, and indentation
+are unchanged. Nested ordered lists keep letters then Roman numerals and
+their separate secondary marker tiers.
 
-Standard content and `two-cols-header` headings share a full-width 1px divider
-in `--ket-border`, replacing the short gradient stroke in both palettes.
-Covers and section dividers keep their own treatments.
+| Palette / mode | Level 1 | Level 2 | Level 3+ |
+| --- | --- | --- | --- |
+| mono light | `#4F4BD8` | `#8885E5` | `#62626A` |
+| mono dark | `#9693FF` | `#B8B6FF` | `#A2A2AA` |
+| vivid light | `#7229E8` | `#A775F0` | `#8E8BAD` |
+| vivid dark | `#7229E8` | `#A775F0` | `#8E8BAD` |
+
+Standard content and `two-cols-header` headings render no divider: the
+full-width 1px hairline and the earlier short gradient stroke are both gone;
+title-to-body spacing comes from the heading's own bottom margin. Covers and
+section dividers keep their own treatments.
 
 ## Global chrome
 
@@ -123,3 +158,10 @@ Covers and section dividers keep their own treatments.
 
 Hide the page counter on a single slide with `hideFooter: true` in its
 frontmatter.
+
+The optional [canvas frame](../README.md#canvas-frame) is drawn 4 slide pixels
+inside the edge of the scaled Slidev canvas without adding padding or
+changing slide layout or zoom. It uses the shared `--ket-radius-md` and
+`--ket-corner-shape` tokens from `styles/squircle.css` (ordinary round
+corners when `corner-shape` is unsupported). The stroke is a translucent
+`--ket-ac-m` accent that follows the active palette and color mode.

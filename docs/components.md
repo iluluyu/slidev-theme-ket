@@ -35,7 +35,8 @@ reveal order. See the opening comparison slides in `example.md`.
 
 Theorem / definition / note block for academic slides. The default style is a
 **filled semantic background with a hairline ring shadow** (no side border),
-matching the Quantum template. Use `:border="true"` for the outlined variant.
+matching the Quantum template. Use `:border="true"` for the outlined variant,
+or `pure` for no background, border, or shadow while retaining semantic text colors.
 
 ### Basic usage
 
@@ -82,6 +83,33 @@ automatically:
 | `remark` / `note` | `warning` |
 | `corollary` | `danger` |
 
+### Pure mode
+
+`pure` removes the container decoration while keeping the header, numbering,
+name, math, body text, and tone-colored emphasis. It works with either palette
+and in light/dark mode:
+
+```vue
+<Pad type="definition" tone="primary" pure>
+
+**Important terms** retain the definition's emphasis color.
+
+</Pad>
+
+<Pad title="Classical baseline" tone="success" pure compact>
+
+Keep the compact layout without a colored box.
+
+</Pad>
+```
+
+Decoration and density are independent: `pure` does not change padding,
+margins, font sizes, or header/body flow; add `compact` for the compact layout.
+If `pure` and `border` are both enabled, **pure wins**. Background and border
+color props have no visible effect in pure mode, but `color` and `title-color`
+continue to work. Set `:pure="false"` or omit it to restore the usual filled
+or outlined style.
+
 ### Props
 
 | Prop | Type | Default | Description |
@@ -92,7 +120,8 @@ automatically:
 | `number` | number / string | — | Theorem / definition number. |
 | `tone` | string | — | Semantic color style. |
 | `compact` | boolean | `false` | Header and first paragraph share one line. |
-| `border` | boolean | `false` | Use the outlined style instead of filled. |
+| `border` | boolean | `false` | Use the outlined style instead of filled; ignored when `pure` is enabled. |
+| `pure` | boolean | `false` | Remove background, border, and shadow; retain text colors and the selected layout density. |
 | `italic` | boolean | `false` | Italicize the body text. |
 | `color` | string | — | Low-level body color override. |
 | `bg-color` | string | — | Low-level background override. |

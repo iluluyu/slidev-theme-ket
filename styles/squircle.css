@@ -43,6 +43,19 @@
   }
 }
 
+/* Inset only the frame overlay, not the slide or its content. */
+.slidev-slide-content::after {
+  content: '';
+  position: absolute;
+  inset: 4px;
+  box-sizing: border-box;
+  border: var(--ket-canvas-frame-width, 0px) solid color-mix(in srgb, var(--ket-ac-m) 46%, transparent);
+  border-radius: var(--ket-radius-md);
+  corner-shape: var(--ket-corner-shape);
+  pointer-events: none;
+  z-index: 50;
+}
+
 /* ── 代码块：21px squircle + 真 1px 边框 + 无 spread 柔和阴影 ──
    这里是代码块边缘 (border / radius / corner-shape / shadow) 的唯一真相源。
    layout.css 的 pre.shiki 只保留 padding / 背景 / macOS 窗口栏，不再重复声明边缘。 */

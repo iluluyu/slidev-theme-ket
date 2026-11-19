@@ -4,13 +4,18 @@
   "description": "Ket — 个人 Slidev 主题（Pad 定理区块 / squircle 圆角 / 投影仪模式）",
   "author": "iluluyu",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iluluyu/slidev-theme-ket.git"
+  },
+  "bugs": "https://github.com/iluluyu/slidev-theme-ket/issues",
   "type": "module",
   "keywords": [
     "slidev-theme",
     "slidev"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22.12.0"
   },
   "scripts": {
     "build": "slidev build example.md",
@@ -20,14 +25,14 @@
     "screenshot": "slidev export example.md --format png"
   },
   "dependencies": {
-    "@slidev/types": "^52.19.0",
-    "katex": "^0.18.4",
+    "@slidev/types": "^53.0.0",
+    "katex": "^0.19.1",
     "markdown-it": "^14.3.0",
-    "three": "^0.186.0"
+    "three": "^0.187.0"
   },
   "devDependencies": {
-    "@slidev/cli": "^52.19.0",
-    "@types/markdown-it": "^14.1.2"
+    "@slidev/cli": "^53.0.0",
+    "@types/markdown-it": "^14.2.0"
   },
   "files": [
     "components",
@@ -36,6 +41,10 @@
     "setup",
     "utils",
     "public",
+    "docs/components.md",
+    "docs/design-tokens.md",
+    "docs/layouts.md",
+    "assets",
     "global-bottom.vue",
     "README.md"
   ],

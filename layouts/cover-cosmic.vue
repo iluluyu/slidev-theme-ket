@@ -96,8 +96,6 @@ const props = withDefaults(defineProps<Props>(), {
   link: '',
   linkLabel: '',
   linkSublabel: '',
-  innerColor: '#ff8080',
-  outerColor: '#3633ff',
   focus: 'right',
   speed: 1,
   interactive: false,

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { resolvePalette, KET_PALETTES } from '../utils/palette.mjs'
+import { resolvePalette, resolveCoverGradient, KET_PALETTES } from '../utils/palette.mjs'
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)))
 const read = (rel) => readFileSync(join(root, rel), 'utf8')
@@ -52,31 +52,43 @@ test('resolvePalette: only the literal vivid selects vivid; everything else fall
   assert.equal(resolvePalette(42), 'mono')
 })
 
+test('cover gradient can differ from body palette; missing or invalid values follow the palette', () => {
+  assert.equal(resolveCoverGradient('vivid', 'mono'), 'vivid')
+  assert.equal(resolveCoverGradient(' MONO ', 'vivid'), 'mono')
+  for (const value of [undefined, null, '', 'neon', 42]) {
+    assert.equal(resolveCoverGradient(value, 'vivid'), 'vivid')
+    assert.equal(resolveCoverGradient(value, 'mono'), 'mono')
+  }
+  assert.equal(resolveCoverGradient(undefined, undefined), 'mono')
+})
+
 test('setup/main.ts mirrors the resolved mode onto the root data attribute via reactive configs', () => {
   assert.ok(setupMain.includes('defineAppSetup'), 'must export defineAppSetup (setup files are awaited as functions)')
   assert.ok(setupMain.includes(`from '@slidev/client'`), 'must read the reactive configs export')
   assert.ok(setupMain.includes('resolvePalette('), 'must route through the pure resolver')
   assert.ok(setupMain.includes('dataset.ketPalette'), 'must write data-ket-palette on <html>')
   assert.ok(setupMain.includes('watchEffect'), 'must react to headmatter HMR without reload')
+  assert.ok(setupMain.includes('dataset.ketCoverGradient = resolveCoverGradient('))
+  assert.ok(setupMain.includes('themeConfig?.coverGradient, themeConfig?.palette'))
 })
 
 /* ── Key palette values: mono default, vivid restoration ── */
 
-test('mono is the default :root palette (Ket Mono values)', () => {
+test('mono is the default :root palette with clearer indigo semantic fills', () => {
   for (const v of [
-    '--slidev-theme-primary: #5856D6',
+    '--slidev-theme-primary: #4F4BD8',
     '--slidev-slide-container-background: #F5F5F7',
-    '--ket-ac: #5856D6',
+    '--ket-ac: #4F4BD8',
     '--ket-t1: #1D1D1F',
-    '--ket-t2: #424245',
-    '--ket-t3: #6E6E73',
+    '--ket-t2: #35353A',
+    '--ket-t3: #62626A',
     '--ket-surface-2: #F5F5F7',
     '--ket-border: #D2D2D7',
-    '--ket-default-bg: #F3F2FC; --ket-default-lbl: #4D4BB7',
-    '--ket-gradient-cover: linear-gradient(108deg, #1D1D1F 0%, #5856D6 68%, #0071E3 100%)',
+    '--ket-default-bg: #E3E5F8; --ket-default-lbl: #4440B0',
+    '--ket-gradient-cover: var(--ket-gradient-cover-mono)',
     '--ket-code-dot-r: #D86A65',
     '--ket-on-accent: #F5F5F7',
-    '--ket-kw-violet: #5856D6',
+    '--ket-kw-violet: #4F4BD8',
     '--ket-deco-accent: var(--ket-ac)',
   ]) {
     assert.ok(monoRoot.includes(v), `mono :root missing ${v}`)
@@ -85,15 +97,15 @@ test('mono is the default :root palette (Ket Mono values)', () => {
 
 test('mono dark block carries the neutral dark ramp', () => {
   for (const v of [
-    '--slidev-theme-primary: #7D7AFF',
+    '--slidev-theme-primary: #9693FF',
     '--slidev-slide-container-background: #111113',
-    '--ket-ac: #7D7AFF',
+    '--ket-ac: #9693FF',
     '--ket-t1: #F5F5F7',
     '--ket-surface: #1C1C1E',
     '--ket-border-soft: #2C2C2E',
-    '--ket-danger-bg:  rgba(255, 69, 58, 0.09);  --ket-danger-lbl:  #FF8A83',
+    '--ket-danger-bg:  #3D232E; --ket-danger-lbl:  #F49BAE',
     '--ket-code-dot-r: #C75F5A',
-    '--ket-kw-danger: #FF8A83',
+    '--ket-kw-danger: #F49BAE',
   ]) {
     assert.ok(monoDark.includes(v), `mono .dark missing ${v}`)
   }
@@ -108,7 +120,7 @@ test('vivid palette fully restores the original quantum-violet look', () => {
     '--ket-ac-lt: #EDE9FE',
     '--ket-t1: #1B1840',
     '--ket-default-bg: #EDEAFF; --ket-default-lbl: #6D28D9',
-    '--ket-gradient-cover: linear-gradient(135deg, #FF6F00 0%, #DE5471 25%, #A948C9 50%, #6553D8 75%, #1C73FF 100%)',
+    '--ket-gradient-cover: var(--ket-gradient-cover-vivid)',
     '--ket-code-bg: #FAFAFA',
     '--ket-code-bar-bg: #F0F1F5',
     '--ket-code-dot-r: #D94F4A',
@@ -142,6 +154,16 @@ test('no original violet literals leak into the mono blocks', () => {
   for (const lit of vividOnly) {
     assert.ok(!monoRoot.includes(lit), `mono :root still contains ${lit}`)
     assert.ok(!monoDark.includes(lit), `mono .dark still contains ${lit}`)
+  }
+})
+
+test('named title gradients are distinct, colorful, and independently selectable', () => {
+  assert.ok(monoRoot.includes('--ket-gradient-cover-mono: linear-gradient(100deg, #B5583A'))
+  assert.ok(monoRoot.includes('--ket-gradient-cover-vivid: linear-gradient(100deg, #E8590C'))
+  for (const mode of KET_PALETTES) {
+    const block = cssBlock(layoutCss, `:root[data-ket-cover-gradient='${mode}']`)
+    assert.ok(block.includes(`--ket-gradient-cover: var(--ket-gradient-cover-${mode})`))
+    assert.ok(layoutCss.indexOf(block) > layoutCss.indexOf(".dark[data-ket-palette='vivid'] {"))
   }
 })
 

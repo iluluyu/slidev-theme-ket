@@ -12,6 +12,16 @@ test('lists use native outside markers and hanging logical indentation', () => {
   assert.doesNotMatch(lists, /font-size: 1\.(?:15|05)em/)
 })
 
+test('unordered lists keep small squares with depth-specific marker colors', () => {
+  assert.match(lists, /\.slidev-layout ul\s*\{\s*list-style-type: square;/)
+  assert.doesNotMatch(lists, /list-style-type: (?:disc|circle);/)
+  assert.match(lists, /color: var\(--ket-ac\)/)
+  assert.match(lists, /:is\(ul, ol\) ul > li::marker\s*\{\s*color: var\(--ket-marker-l2\)/)
+  assert.match(lists, /:is\(ul, ol\) :is\(ul, ol\) ul > li::marker\s*\{\s*color: var\(--ket-t3\)/)
+  assert.match(lists, /:is\(ul, ol\) ol > li::marker/)
+  assert.doesNotMatch(lists, /:is\(ul, ol\) :is\(ul, ol\) > li::marker/)
+})
+
 test('mixed nesting and loose paragraphs share a consistent rhythm', () => {
   assert.match(lists, /:is\(ul, ol\) > li > p/)
   assert.match(lists, /ol:not\(\[type\]\)/)
@@ -28,13 +38,9 @@ test('text comparisons are undecorated, flexible, and safe for long content', ()
   assert.doesNotMatch(comparison, /background:|border:|box-shadow:/)
 })
 
-test('both standard and two-column title rules are full-width 1px hairlines', () => {
-  const rules = [...css.matchAll(/> h1:first-child::after\s*\{([^}]+)\}/g)]
-  assert.equal(rules.length, 2)
-  for (const [, rule] of rules) {
-    assert.match(rule, /width: 100%/)
-    assert.match(rule, /height: 1px/)
-    assert.match(rule, /background: var\(--ket-border\)/)
-    assert.doesNotMatch(rule, /gradient/)
-  }
+test('standard and two-column titles render no divider under the heading', () => {
+  // The full-width 1px hairline under content-page and two-cols-header titles
+  // was removed; no h1 ::after rule may reintroduce a divider.
+  assert.equal([...css.matchAll(/> h1:first-child::after\s*\{[^}]*\}/g)].length, 0)
+  assert.doesNotMatch(css, /h1:first-child::after[\s\S]{0,120}--ket-border/)
 })

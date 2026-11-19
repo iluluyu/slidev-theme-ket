@@ -25,9 +25,17 @@ pnpm install
 pnpm dev      # → http://localhost:3030
 ```
 
-`pnpm build` renders the showcase; `pnpm screenshot` captures the first slide.
+`pnpm test` checks the theme; `pnpm build` builds the showcase.
 
 ## Use in a deck
+
+Requires Node.js 22.12+ and Slidev 53. Install the theme in the deck's project:
+
+```sh
+pnpm add slidev-theme-ket
+```
+
+Then set the theme in the deck's headmatter:
 
 ```yaml
 ---
@@ -55,7 +63,8 @@ themeConfig:
 ---
 ```
 
-- `mono` (default) — neutral gray surfaces with a single indigo focus color;
+- `mono` (default) — neutral gray surfaces with a single indigo focus color
+  and clearly visible, restrained semantic fills;
   merged from the retired `slidev-theme-ket-mono` variant; its separate
   submodule has been removed.
 - `vivid` — the original ket look: parchment ground, deep indigo text,
@@ -63,7 +72,12 @@ themeConfig:
 
 The switch is deck-global (no per-slide palette) and recolors tokens only —
 layout sizes and the component API are identical; light and dark mode are
-both supported.
+both supported. Cover gradients can be selected independently with
+`themeConfig.coverGradient: mono | vivid` (omitted/invalid follows `palette`).
+Use `palette: mono` with `coverGradient: vivid` for a bright cover and calm
+body colors. Both gradients have been redesigned: warm clay-to-steel-blue
+for mono; orange-pink-violet-blue for vivid. `gradient: true/false` still toggles
+the effect per slide.
 
 Migrating older decks:
 
@@ -72,6 +86,21 @@ Migrating older decks:
 - Wanting the previous violet look: set `palette: vivid`.
 - Still using `<Bra …>` tags: rename them to `<Pad …>` — the theorem block
   component is `Pad` only.
+
+### Canvas frame
+
+Set an optional deck-wide frame in the headmatter:
+
+```yaml
+themeConfig:
+  canvasFrame: 2
+```
+
+The number sets the stroke width in slide pixels (try `1` or `2`, capped
+at `6`). Omit it or set it to `0` to turn it off. The frame sits 4 slide pixels
+inside the canvas edge and uses a translucent palette accent and shared squircle corners,
+without changing layout or clipping content. The showcase enables it for preview; if left enabled in a deck,
+it also appears in presentation and exported slides.
 
 ## Design system
 
@@ -83,10 +112,10 @@ meaning — each `Pad` tone maps to a role. The default `mono` palette:
 
 | Token | mono (default) | Role |
 | --- | --- | --- |
-| `--ket-ac` | `#5856D6` | Indigo focus accent |
+| `--ket-ac` | `#4F4BD8` | Indigo focus accent |
 | `--ket-t1` | `#1D1D1F` | Primary text |
-| `--ket-t2` | `#424245` | Body text |
-| `--ket-t3` | `#6E6E73` | Captions |
+| `--ket-t2` | `#35353A` | Body text |
+| `--ket-t3` | `#62626A` | Captions |
 
 `palette: vivid` restores the original violet ramp (`--ket-ac: #7229E8`,
 `--ket-t1: #1B1840`, …).
@@ -114,8 +143,13 @@ Common props:
 - `type`: `theorem`, `lemma`, `proof`, `definition`, `corollary`, `question`, `assumption`, `protocol`
 - `title`, `name`, `number`
 - `tone`: `default`, `primary`, `success`, `warning`, `danger`, `muted`
-- `compact`, `border`, `italic`
+- `compact`, `border`, `pure`, `italic`
 - `color`, `bg-color`, `title-color`, `border-color`
+
+Use `<Pad pure>` for a clean block without background, border, or shadow;
+semantic emphasis colors remain. Add `compact` independently for a compact
+layout. `pure` takes precedence over `border`; default blocks are unchanged.
+See [Pure mode](./docs/components.md#pure-mode) for examples and precedence.
 
 ### `PaperCover`
 
@@ -168,4 +202,4 @@ Full usage and slots: [docs/layouts.md](./docs/layouts.md).
 
 ## License
 
-[MIT](./LICENSE)
+Theme code: [MIT](./LICENSE). Bundled fonts use SIL Open Font License 1.1: [Inter](./styles/fonts/Inter-OFL.txt), [JetBrains Mono](./styles/fonts/JetBrainsMono-OFL.txt), and [Geist / Geist Mono](./styles/fonts/Geist-OFL.txt).

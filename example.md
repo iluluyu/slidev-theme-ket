@@ -1,5 +1,7 @@
 ---
 theme: .
+aspectRatio: 16/9
+canvasWidth: 976
 layout: cover
 title: Quantum Entanglement and Information Processing
 author: iluluyu
@@ -7,6 +9,8 @@ organization: Fudan University
 date: 2026-06-14
 gradient: true
 footerTitle: Quantum Entanglement and Information Processing
+themeConfig:
+  canvasFrame: 2
 info: |
   ## Ket 主题特性展示
   Quantum-style cover · section · Pad theorem/proof · table · code · footer progress
@@ -28,16 +32,21 @@ A framework for multipartite entanglement measures and their role in quantum com
 
 ---
 layout: cover-cosmic
+routeAlias: cosmic
 heading: Gravitational-Wave Astronomy
+quality: high
+speed: 0.45
+maxFps: 24
 date: 2026-10-06
 link: https://www.youtube.com/watch?v=demo
 linkLabel: Watch on YouTube
 linkSublabel: Simons Institute talk
 ---
 
-<!-- cover-cosmic：Three.js 黑洞（引力透镜/吸积盘/差动粒子流）+ 左侧文字栈 + 毛玻璃链接卡。
-     可调 prop：innerColor、outerColor、focus（left/center）、speed、stars、quality、motion、maxFps；
-     默认 motion:auto 遵循系统偏好；总览/打印/下一页预览静止，仅当前可见封面持续渲染。
+<!-- cover-cosmic：Three.js 黑洞（引力透镜/银蓝亮弧/连续吸积盘细纹）+ 左侧文字栈 + 毛玻璃链接卡。
+     可调 prop：innerColor、outerColor、focus（left/center/right）、speed、stars、quality、motion、maxFps；
+     本页用 high + speed:0.45 展示慢速高清；motion:auto 遵循系统偏好。
+     总览/打印/下一页预览静止，仅当前可见封面持续渲染。
      link/linkLabel/linkSublabel 渲染玻璃卡（YouTube 链接自动换播放圈标）。
      标题、作者、机构、日期由 headmatter 提供（标题可用本页 heading 覆盖），不要在正文里再写 # 标题。 -->
 
@@ -55,12 +64,14 @@ quality: low
 
 ---
 layout: cover-cosmic
+routeAlias: cosmic-detail
 heading: A Still Cosmic Cover
 motion: never
-quality: low
+quality: high
 ---
 
-<!-- motion:never 保留静态首帧，无持续循环；2D 回退同样遵守此设置。 -->
+<!-- motion:never 保留静态首帧，无持续循环；quality:high 提高着色分辨率的上限。
+     软件 WebGL 的 high 保持 auto 的少量星点，仅提高分辨率上限；2D 回退也遵守静态设置。 -->
 
 ---
 
@@ -206,7 +217,7 @@ For a pure bipartite state $|\psi_{AB}\rangle$, $S(\rho_{AB})=0$ and $S(\rho_A)=
 
 <Pad title="Theorem" tone="default">
 
-主定理、核心结果，紫色高亮。
+主定理、核心结果，靛蓝强调（vivid 下为量子紫）。
 
 </Pad>
 
@@ -243,6 +254,25 @@ For a pure bipartite state $|\psi_{AB}\rangle$, $S(\rho_{AB})=0$ and $S(\rho_A)=
 </div>
 
 ---
+routeAlias: canvas-frame
+---
+
+# Design System · *Canvas Frame*
+
+A tinted frame sits 4 pixels inside the canvas edge. The frame shares the continuous corners used inside the slide and leaves the content in place.
+
+```yaml
+themeConfig:
+  canvasFrame: 2  # stroke width in slide pixels; 0 or omit to disable
+```
+
+<Pad type="note" title="The same corner shape" compact>
+
+The frame and this Pad share Ket’s large squircle radius.
+
+</Pad>
+
+---
 
 # Template · Design System · *Color Palette*
 
@@ -256,9 +286,24 @@ themeConfig:
 ---
 ```
 
-`mono` spends one indigo accent `#5856D6` on neutral surfaces, with muted traffic-light dots and restrained semantic fills. `vivid` restores the violet ramp `#7229E8`, the rainbow cover gradient and the saturated keyword tones. Layout, geometry and typography stay identical — only colors switch.
+`mono` uses indigo `#4F4BD8` on neutral surfaces with clearer semantic fills; `vivid` keeps violet `#7229E8` and brighter keyword tones. Layout and typography stay identical.
+
+Cover gradients are independent: set `themeConfig.coverGradient: vivid` for a bright orange–pink–violet–blue cover with mono body colors. Omitted/invalid follows `palette`; `mono` uses a restrained clay–rose–indigo–steel-blue gradient.
 
 Current keyword tones: <span class="kw-danger">danger</span> · <span class="kw-gold">gold</span> · <span class="kw-blue">blue</span> · <span class="kw-green">green</span> · <span class="kw-violet">violet</span> — and badges: <span class="badge badge-v">accent</span> <span class="badge badge-g">success</span> <span class="badge badge-b">primary</span>.
+
+---
+
+layout: cover
+---
+
+# A Warmer Signature Gradient
+
+Default mono: clay → dusty rose → indigo → steel blue.
+
+<!-- Set themeConfig.coverGradient: vivid in headmatter to compare the
+     brighter orange → pink → violet → blue ramp without changing Pad colors.
+     All cover variants, PaperCover, and thanks share the resolved ramp. -->
 
 ---
 
@@ -282,6 +327,30 @@ Every measurement outcome falls in $H^{\perp}$.
 </Pad>
 <Pad title="**Recall:** the *symmetric* cloner needs $t = \Theta(2^n)$ copies" compact>
 Werner's optimal cloner projects onto the symmetric subspace.
+</Pad>
+
+---
+
+# Template · Design System · *Pure Mode*
+
+`pure` removes decoration; `compact` controls density. Tone-colored emphasis remains in both light and dark mode.
+
+<Pad type="theorem" title="Filled" compact>
+
+Keep a colored background for the main claim.
+
+</Pad>
+
+<Pad type="definition" title="Pure" tone="primary" pure>
+
+**Important terms** keep their semantic color, while the block has no fill, border, or shadow. Math still renders: $H(\rho)=-\operatorname{tr}(\rho\log\rho)$.
+
+</Pad>
+
+<Pad type="remark" title="Pure + compact" pure compact border>
+
+**Compact layout**, no decoration. Even with `border`, Pure takes precedence.
+
 </Pad>
 
 ---

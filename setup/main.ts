@@ -1,7 +1,8 @@
 import { watchEffect } from 'vue'
 import { defineAppSetup } from '@slidev/types'
 import { configs } from '@slidev/client'
-import { resolvePalette } from '../utils/palette.mjs'
+import { resolvePalette, resolveCoverGradient } from '../utils/palette.mjs'
+import { resolveCanvasFrame } from '../utils/canvas-frame.mjs'
 
 // Deck-wide palette switch: `themeConfig.palette: mono | vivid` in the deck
 // headmatter. This app setup mirrors the resolved mode onto
@@ -19,6 +20,17 @@ export default defineAppSetup(() => {
     const themeConfig = (configs as Record<string, unknown> | undefined)?.themeConfig as
       | Record<string, unknown>
       | undefined
-    document.documentElement.dataset.ketPalette = resolvePalette(themeConfig?.palette)
+    const root = document.documentElement
+    root.dataset.ketPalette = resolvePalette(themeConfig?.palette)
+    // A vivid cover can coexist with mono body colors (and vice versa).
+    root.dataset.ketCoverGradient = resolveCoverGradient(
+      themeConfig?.coverGradient, themeConfig?.palette,
+    )
+
+    const frame = resolveCanvasFrame(themeConfig?.canvasFrame)
+    if (frame > 0)
+      root.style.setProperty('--ket-canvas-frame-width', `${frame}px`)
+    else
+      root.style.removeProperty('--ket-canvas-frame-width')
   })
 })

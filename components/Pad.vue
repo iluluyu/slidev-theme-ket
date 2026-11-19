@@ -13,6 +13,7 @@ interface Props {
   compact?: boolean
   inline?: boolean
   border?: boolean
+  pure?: boolean
   italic?: boolean
   tone?: Tone | string
   color?: string
@@ -31,6 +32,7 @@ const props = withDefaults(defineProps<Props>(), {
   // shadowing the legacy `inline` prop in `compact ?? inline ?? false`,
   // while an explicit :compact="false" still wins.
   compact: undefined,
+  pure: false,
   italic: false,
   tone: '',
   color: '',
@@ -75,8 +77,9 @@ const showHeader = computed(() => {
 })
 
 const effectiveCompact = computed(() => props.compact ?? props.inline ?? false)
-// Default is the quantum background-only style; `border` opts into the outlined variant.
-const effectiveBorder = computed(() => props.border ?? false)
+// Decoration and density are independent: pure keeps tone/text styling but
+// removes the container treatment, taking precedence over an explicit border.
+const effectiveBorder = computed(() => !props.pure && (props.border ?? false))
 
 const toneClass = computed(() => {
   const typeTone: Record<string, Tone> = {
@@ -116,6 +119,7 @@ const blockStyle = computed(() => ({
         'pad-compact': effectiveCompact,
         'pad-inline': effectiveCompact,
         'pad-border': effectiveBorder,
+        'pad-pure': pure,
         'pad-italic': italic
       }
     ]"
@@ -125,7 +129,6 @@ const blockStyle = computed(() => ({
       <span v-if="displayTitle" class="pad-type" v-html="renderedTitle" />
       <span v-if="number !== undefined" class="pad-number">{{ number }}</span>
       <span v-if="name" class="pad-name">({{ name }})</span>
-      <span class="pad-dot">.</span>
     </span>
     <div class="pad-content">
       <slot />
@@ -140,7 +143,8 @@ const blockStyle = computed(() => ({
    Default style matches the Quantum template: filled
    background tint, no side border, a hairline ring
    shadow for depth. Set `border` to switch to the
-   outlined variant.
+   outlined variant; `pure` removes background, border,
+   and shadow while preserving the semantic text colors.
 ═══════════════════════════════════════════════ */
 .pad-block {
   background-color: var(--pad-bg-color);
@@ -207,6 +211,16 @@ const blockStyle = computed(() => ({
   box-shadow: none;
 }
 
+/* Pure variant — no container decoration in either color mode. Keep the
+   existing padding/margins and header/body flow (including compact/inline).
+   Tone and custom title/body colors continue to resolve as before. */
+.pad-block.pad-pure,
+.dark .pad-block.pad-pure {
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+
 .pad-header {
   display: block;
   font-weight: 700;
@@ -247,10 +261,6 @@ const blockStyle = computed(() => ({
 }
 
 .pad-type {
-  color: var(--pad-title-color);
-}
-
-.pad-dot {
   color: var(--pad-title-color);
 }
 
